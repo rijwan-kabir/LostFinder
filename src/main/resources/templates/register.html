@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register - DIU LostFinder</title>
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+  <link rel="stylesheet" th:href="@{/css/auth.css}">
+  <link rel="stylesheet" th:href="@{/css/responsive.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+  <div class="container">
+    <a href="/" class="logo">
+      DIU <span>LostFinder</span>
+    </a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/register">Register</a>
+      <a href="/login">Login</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Register Container -->
+<div class="auth-container">
+  <h2><i class="fas fa-user-plus"></i> Create Account</h2>
+
+  <!-- Error Message - 2nd pic er moto -->
+  <div th:if="${error}" class="alert alert-error">
+    <i class="fas fa-exclamation-circle"></i>
+    <span th:text="${error}">Email already registered!</span>
+  </div>
+
+  <!-- Success Message (if any) -->
+  <div th:if="${success}" class="alert alert-success">
+    <i class="fas fa-check-circle"></i>
+    <span th:text="${success}">Registration successful!</span>
+  </div>
+
+  <!-- Registration Form -->
+  <form th:action="@{/register}" th:object="${user}" method="post">
+    <!-- Full Name -->
+    <div class="form-group">
+      <label><i class="fas fa-user"></i> Full Name:</label>
+      <input type="text" th:field="*{fullName}" placeholder="Enter your full name">
+    </div>
+
+    <!-- DIU Email -->
+    <div class="form-group">
+      <label><i class="fas fa-envelope"></i> DIU Email:</label>
+      <input type="email" th:field="*{email}" placeholder="example@diu.edu.bd">
+      <small><i class="fas fa-info-circle"></i> Must be @diu.edu.bd email</small>
+    </div>
+
+    <!-- Student ID -->
+    <div class="form-group">
+      <label><i class="fas fa-id-card"></i> Student ID:</label>
+      <input type="text" th:field="*{studentId}" placeholder="e.g., 221-15-1234">
+    </div>
+
+    <!-- Department -->
+    <div class="form-group">
+      <label><i class="fas fa-building"></i> Department:</label>
+      <select th:field="*{department}">
+        <option value="">Select Department</option>
+        <option value="CSE">Computer Science & Engineering</option>
+        <option value="EEE">Electrical & Electronic Engineering</option>
+        <option value="BBA">Business Administration</option>
+        <option value="ENGLISH">English</option>
+        <option value="LAW">Law</option>
+        <option value="PHARMACY">Pharmacy</option>
+      </select>
+    </div>
+
+    <!-- Phone -->
+    <div class="form-group">
+      <label><i class="fas fa-phone"></i> Phone:</label>
+      <input type="text" th:field="*{phone}" placeholder="01XXXXXXXXX">
+    </div>
+
+    <!-- Password -->
+    <div class="form-group">
+      <label><i class="fas fa-lock"></i> Password:</label>
+      <input type="password" th:field="*{password}" placeholder="Enter password">
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-primary btn-block">
+      <i class="fas fa-user-plus"></i> Register
+    </button>
+
+    <!-- Login Link -->
+    <div class="auth-link">
+      <p>Already have an account?</p>
+      <a href="/login"><i class="fas fa-sign-in-alt"></i> Login here</a>
+    </div>
+  </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+    <p>Daffodil International University</p>
+  </div>
+</footer>
+</body>
+</html>

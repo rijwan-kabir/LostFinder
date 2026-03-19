@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - DIU LostFinder</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">
+            DIU <span>LostFinder</span>
+        </a>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/register">Register</a>
+            <a href="/login">Login</a>
+        </div>
+    </div>
+</nav>
+
+<!-- Login Container - same as register -->
+<div class="auth-container">
+    <h2><i class="fas fa-sign-in-alt"></i> Login to Account</h2>
+
+    <!-- Error Message -->
+    <div th:if="${param.error}" class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        <span>Invalid email or password!</span>
+    </div>
+
+    <!-- Logout Message -->
+    <div th:if="${param.logout}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span>You have been logged out successfully!</span>
+    </div>
+
+    <!-- Success Message (from registration) -->
+    <div th:if="${success}" class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        <span th:text="${success}">Registration successful! Please login.</span>
+    </div>
+
+    <!-- Login Form - same styling as register -->
+    <form th:action="@{/login}" method="post">
+        <!-- Email Field -->
+        <div class="form-group">
+            <label><i class="fas fa-envelope"></i> DIU Email:</label>
+            <input type="email" name="username" placeholder="example@diu.edu.bd" required autofocus>
+            <small><i class="fas fa-info-circle"></i> Enter your DIU email address</small>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+            <label><i class="fas fa-lock"></i> Password:</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <!-- Remember Me & Forgot Password -->
+        <div class="auth-options">
+            <label class="remember-me">
+                <input type="checkbox" name="remember-me">
+                <span>Remember me</span>
+            </label>
+            <a href="/forgot-password" class="forgot-password">
+                <i class="fas fa-question-circle"></i> Forgot Password?
+            </a>
+        </div>
+
+        <!-- Submit Button - same as register -->
+        <button type="submit" class="btn btn-primary btn-block">
+            <i class="fas fa-sign-in-alt"></i> Login
+        </button>
+
+        <!-- Register Link -->
+        <div class="auth-link">
+            <p>Don't have an account?</p>
+            <a href="/register"><i class="fas fa-user-plus"></i> Create new account</a>
+        </div>
+    </form>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+        <p>Daffodil International University</p>
+    </div>
+</footer>
+</body>
+</html>

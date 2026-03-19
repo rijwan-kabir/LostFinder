@@ -1,0 +1,60 @@
+/* responsive.css - All media queries */
+
+@media (max-width: 768px) {
+    /* Navigation */
+    .navbar .container {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .nav-links a {
+        padding: 5px 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Homepage */
+    .welcome-card h1 {
+        font-size: 2rem;
+    }
+
+    .welcome-card p {
+        font-size: 1rem;
+    }
+
+    .btn {
+        display: block;
+        margin: 10px auto;
+        width: 80%;
+    }
+
+    .features {
+        grid-template-columns: 1fr;
+        padding: 0 20px;
+    }
+
+    .feature {
+        padding: 30px 20px;
+    }
+
+    /* Auth pages */
+    .auth-container {
+        margin: 20px;
+        padding: 30px 20px;
+    }
+
+    .auth-container h2 {
+        font-size: 1.8rem;
+    }
+
+    .auth-options {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+}

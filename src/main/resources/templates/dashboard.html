@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - DIU LostFinder</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" th:href="@{/css/responsive.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<!-- Navigation section -->
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">
+            DIU <span>LostFinder</span>
+        </a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/post-lost" class="nav-link">Post Lost</a>
+            <a href="/post-found" class="nav-link">Post Found</a>
+            <a href="/my-items" class="nav-link">My Items</a>
+
+            <form th:action="@{/logout}" method="post" class="nav-form">
+                <button type="submit" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Dashboard Main Content -->
+<div class="dashboard-container">
+
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1>
+                <i class="fas fa-hand-peace"></i>
+                Welcome back,
+                <span th:text="${user.fullName.split(' ').length > 1 ?
+                            user.fullName.split(' ')[0] + ' ' +
+                            user.fullName.split(' ')[user.fullName.split(' ').length - 1] :
+                            user.fullName}">
+                Rijwan Kabir
+            </span>!
+            </h1>
+            <p>
+                <i class="fas fa-calendar-alt"></i>
+                Member since <span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">March 2026</span>
+            </p>
+        </div>
+
+        <!-- Profile Badge -->
+        <div class="profile-badge">
+
+            <div class="badge-info">
+
+
+                <div class="name-row">
+                    <i class="fas fa-user-circle user-icon"></i>
+                    <h3 th:text="${user.fullName}">Rijwan Kabir</h3>
+                </div>
+
+                <!-- Student ID -->
+                <p>
+                    <i class="fas fa-id-card"></i>
+                    <span th:text="${user.studentId}">241-15-84000</span>
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-box-open"></i>
+            </div>
+            <div class="stat-details">
+                <h3>5</h3>
+                <p>Total Items</p>
+                <small>+2 this month</small>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="stat-details">
+                <h3>3</h3>
+                <p>Lost Items</p>
+                <small>2 pending</small>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <div class="stat-details">
+                <h3>2</h3>
+                <p>Found Items</p>
+                <small>1 returned</small>
+            </div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-details">
+                <h3>3</h3>
+                <p>Claims</p>
+                <small>1 approved</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <h2 class="section-title">
+        <i class="fas fa-bolt"></i>
+        Quick Actions
+    </h2>
+    <div class="actions-grid">
+        <a href="/post-lost" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-search-location"></i>
+            </div>
+            <h3>Report Lost Item</h3>
+            <p>Lost something? Post it here and get help from the community</p>
+            <span class="action-btn">Post Now →</span>
+        </a>
+        <a href="/post-found" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-hand-holding-heart"></i>
+            </div>
+            <h3>Report Found Item</h3>
+            <p>Found something? Help others by posting found items</p>
+            <span class="action-btn">Post Now →</span>
+        </a>
+        <a href="/my-items" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-list"></i>
+            </div>
+            <h3>My Items</h3>
+            <p>View and manage all your posted items</p>
+            <span class="action-btn">View All →</span>
+        </a>
+        <a href="/claims" class="action-card">
+            <div class="action-icon">
+                <i class="fas fa-clipboard-list"></i>
+            </div>
+            <h3>My Claims</h3>
+            <p>Track status of your item claims</p>
+            <span class="action-btn">View Claims →</span>
+        </a>
+    </div>
+
+    <!-- Recent Items -->
+    <div class="recent-items">
+        <div class="recent-header">
+            <h3>
+                <i class="fas fa-history"></i>
+                Recent Activity
+            </h3>
+            <a href="/my-items" class="view-all-link">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <!-- Items List (dynamic content) -->
+        <div class="items-list">
+            <!-- Lost Item Example -->
+            <div class="item-row">
+                <div class="item-status status-lost">
+                    <i class="fas fa-times"></i>
+                </div>
+                <div class="item-details">
+                    <h4>Black Wallet</h4>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i> Permanent Campus
+                        <i class="fas fa-clock" style="margin-left: 15px;"></i> 2 days ago
+                    </p>
+                </div>
+                <div class="item-meta">
+                    <div class="date">Mar 17, 2026</div>
+                    <span class="badge badge-pending">Pending</span>
+                </div>
+            </div>
+
+            <!-- Found Item Example -->
+            <div class="item-row">
+                <div class="item-status status-found">
+                    <i class="fas fa-check"></i>
+                </div>
+                <div class="item-details">
+                    <h4>Calculator (Casio fx-991EX)</h4>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i> Library
+                        <i class="fas fa-clock" style="margin-left: 15px;"></i> 5 days ago
+                    </p>
+                </div>
+                <div class="item-meta">
+                    <div class="date">Mar 14, 2026</div>
+                    <span class="badge badge-approved">Returned</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Information -->
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar" th:text="${user.fullName.substring(0,1)}">R</div>
+            <div class="profile-info">
+                <h3 th:text="${user.fullName}">Rijwan Kabir</h3>
+                <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">rijwan@diu.edu.bd</span></p>
+            </div>
+        </div>
+        <div class="profile-grid">
+            <div class="profile-item">
+                <i class="fas fa-id-card"></i>
+                <div>
+                    <p>Student ID</p>
+                    <h4 th:text="${user.studentId}">221-15-1234</h4>
+                </div>
+            </div>
+            <div class="profile-item">
+                <i class="fas fa-building"></i>
+                <div>
+                    <p>Department</p>
+                    <h4 th:text="${user.department}">Computer Science & Engineering</h4>
+                </div>
+            </div>
+            <div class="profile-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                    <p>Phone</p>
+                    <h4 th:text="${user.phone}">017XXXXXXXX</h4>
+                </div>
+            </div>
+            <div class="profile-item">
+                <i class="fas fa-calendar-alt"></i>
+                <div>
+                    <p>Member Since</p>
+                    <h4 th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">19 Mar 2026</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State (if no items) -->
+    <!--
+    <div class="empty-state">
+        <i class="fas fa-box-open"></i>
+        <h3>No items yet</h3>
+        <p>Start by posting a lost or found item</p>
+        <a href="/post-lost" class="btn btn-primary">Post Lost Item</a>
+        <a href="/post-found" class="btn btn-secondary">Post Found Item</a>
+    </div>
+    -->
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+        <p>Daffodil International University</p>
+    </div>
+</footer>
+</body>
+</html>
