@@ -1,13 +1,16 @@
 package com.diu.lostfinder.controller;
 
 import com.diu.lostfinder.entity.User;
+import com.diu.lostfinder.repository.UserRepository;
 import com.diu.lostfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class HomeController {
@@ -15,16 +18,41 @@ public class HomeController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/")
-    public String home(@RequestParam(value = "logout", required = false) String logout, Model model) {
+    public String home(@RequestParam(value = "logout", required = false) String logout,
+                       Model model,
+                       Authentication authentication) {
         if (logout != null) {
             model.addAttribute("message", "You have been logged out successfully!");
         }
+
+        // Check if user is logged in
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email).orElse(null);
+            if (user != null) {
+                model.addAttribute("isLoggedIn", true);
+                model.addAttribute("user", user);
+                boolean isAdmin = authentication.getAuthorities().stream()
+                        .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                model.addAttribute("isAdmin", isAdmin);
+            }
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
         return "index";
     }
 
     @GetMapping("/register")
-    public String showRegisterForm(Model model) {
+    public String showRegisterForm(Model model, Authentication authentication) {
+        // If already logged in, redirect to dashboard
+        if (authentication != null && authentication.isAuthenticated()) {
+            return "redirect:/dashboard";
+        }
         model.addAttribute("user", new User());
         return "register";
     }
@@ -48,7 +76,30 @@ public class HomeController {
     }
 
     @GetMapping("/login")
-    public String showLoginForm() {
+    public String showLoginForm(Authentication authentication) {
+        // If already logged in, redirect to dashboard
+        if (authentication != null && authentication.isAuthenticated()) {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin) {
+                return "redirect:/admin/dashboard";
+            } else {
+                return "redirect:/dashboard";
+            }
+        }
         return "login";
+    }
+
+    @GetMapping("/check-auth")
+    @ResponseBody
+    public String checkAuth(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "❌ Not authenticated! Please login first.";
+        }
+
+        return "✅ Authenticated!\n" +
+                "Username: " + authentication.getName() + "\n" +
+                "Authorities: " + authentication.getAuthorities() + "\n" +
+                "Is Authenticated: " + authentication.isAuthenticated();
     }
 }

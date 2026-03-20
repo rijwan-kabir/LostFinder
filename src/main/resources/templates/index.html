@@ -9,11 +9,11 @@
     <link rel="stylesheet" th:href="@{/css/home.css}">
     <link rel="stylesheet" th:href="@{/css/responsive.css}">
 
-
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+
 <!-- Navigation -->
 <nav class="navbar">
     <div class="container">
@@ -21,24 +21,104 @@
             DIU <span>LostFinder</span>
         </a>
         <div class="nav-links">
-            <a href="/">Home</a>
-            <a href="/lost-items">Lost Items</a>
-            <a href="/found-items">Found Items</a>
-            <a href="/post-lost">Post Lost</a>
-            <a href="/post-found">Post Found</a>
-            <a href="/register">Register</a>
-            <a href="/login">Login</a>
+            <a href="/" class="nav-link">Home</a>
+            <a href="/items" class="nav-link">Browse Items</a>
+
+            <!-- Show these links only if user is logged in -->
+            <div th:if="${isLoggedIn}">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <a href="/post-lost" class="nav-link">Post Lost</a>
+                <a href="/post-found" class="nav-link">Post Found</a>
+                <a href="/my-items" class="nav-link">My Items</a>
+                <form th:action="@{/logout}" method="post" class="nav-form">
+                    <button type="submit" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </div>
+
+            <!-- Show these links only if user is NOT logged in -->
+            <div th:unless="${isLoggedIn}">
+                <a href="/register" class="nav-link">Register</a>
+                <a href="/login" class="nav-link">Login</a>
+            </div>
         </div>
     </div>
 </nav>
+
+<!-- Welcome message for logged in users -->
+<div th:if="${isLoggedIn}" class="welcome-message">
+    <div class="container">
+        <p>
+            <i class="fas fa-check-circle"></i>
+            Welcome back, <strong th:text="${user.fullName}">User</strong>!
+            You can now post lost/found items.
+        </p>
+    </div>
+</div>
 
 <!-- Main Content -->
 <div class="container">
     <div class="welcome-card">
         <h1>Welcome to DIU LostFinder</h1>
         <p>Help your fellow students find their lost items or report found items</p>
-        <a href="/post-lost" class="btn btn-secondary">Report Lost Item</a>
-        <a href="/post-found" class="btn btn-primary">Report Found Item</a>
+
+        <!-- Different buttons based on login status -->
+        <div th:if="${isLoggedIn}">
+            <a href="/post-lost" class="btn btn-primary">Report Lost Item</a>
+            <a href="/post-found" class="btn btn-secondary">Report Found Item</a>
+        </div>
+        <div th:unless="${isLoggedIn}">
+            <a href="/login" class="btn btn-primary">Login to Post</a>
+            <a href="/register" class="btn btn-secondary">Create Account</a>
+        </div>
+    </div>
+
+    <!-- Recent Items Section - Everyone can see -->
+    <div class="recent-items-section">
+        <h2><i class="fas fa-clock"></i> Recent Lost & Found Items</h2>
+
+        <div class="items-grid">
+            <!-- Lost Item Card -->
+            <div class="item-card">
+                <div class="item-badge lost">LOST</div>
+                <div class="item-content">
+                    <h3>Black Wallet</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Permanent Campus</p>
+                    <p><i class="fas fa-calendar"></i> 2 days ago</p>
+                    <p class="description">Black leather wallet with ID card</p>
+                    <button class="btn-view" onclick="location.href='/login'">View Details</button>
+                </div>
+            </div>
+
+            <!-- Found Item Card -->
+            <div class="item-card">
+                <div class="item-badge found">FOUND</div>
+                <div class="item-content">
+                    <h3>Calculator (Casio fx-991EX)</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Library</p>
+                    <p><i class="fas fa-calendar"></i> 5 days ago</p>
+                    <p class="description">Scientific calculator in good condition</p>
+                    <button class="btn-view" onclick="location.href='/login'">Login to Claim</button>
+                </div>
+            </div>
+
+            <!-- Lost Item Card 2 -->
+            <div class="item-card">
+                <div class="item-badge lost">LOST</div>
+                <div class="item-content">
+                    <h3>Student ID Card</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Cafeteria</p>
+                    <p><i class="fas fa-calendar"></i> 1 day ago</p>
+                    <p class="description">ID: 241-15-840</p>
+                    <button class="btn-view" onclick="location.href='/login'">View Details</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-more">
+            <a href="/items" class="btn-link">View All Items →</a>
+        </div>
     </div>
 
     <div class="features">
@@ -67,5 +147,6 @@
         <p>Daffodil International University</p>
     </div>
 </footer>
+
 </body>
 </html>

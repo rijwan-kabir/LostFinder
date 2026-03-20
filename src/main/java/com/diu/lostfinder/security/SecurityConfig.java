@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -21,24 +22,34 @@ public class SecurityConfig {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Bean
+    public AuthenticationSuccessHandler authenticationSuccessHandler() {
+        return (request, response, authentication) -> {
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+            if (isAdmin) {
+                response.sendRedirect("/admin/dashboard");
+            } else {
+                response.sendRedirect("/dashboard");
+            }
+        };
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
-                        // Static resources
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/**.css", "/style.css").permitAll()
-                        // Public pages
                         .requestMatchers("/", "/index", "/register", "/login",
                                 "/forgot-password", "/reset-password").permitAll()
-                        // Dashboard and other pages need authentication
-                        .requestMatchers("/dashboard", "/post-lost", "/post-found", "/my-items").authenticated()
-                        // Admin only pages
+                        .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .successHandler(authenticationSuccessHandler())  // ← This is key!
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -51,7 +62,7 @@ public class SecurityConfig {
                 )
                 .rememberMe(remember -> remember
                         .key("uniqueAndSecret")
-                        .tokenValiditySeconds(86400) // 24 hours
+                        .tokenValiditySeconds(86400)
                 )
                 .csrf(csrf -> csrf.disable());
 
