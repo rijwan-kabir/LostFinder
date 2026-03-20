@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Item - Admin</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a href="/admin/items" class="nav-link">Items</a>
+            <a href="/admin/users" class="nav-link">Users</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="admin-container">
+    <h1><i class="fas fa-box"></i> Item Details</h1>
+
+    <div class="item-detail-card" th:if="${item != null}">
+        <div class="item-header">
+            <h2 th:text="${item.title}">Item Title</h2>
+            <span th:class="'status-badge ' + (${item.type} == 'LOST' ? 'status-lost' : 'status-found')"
+                  th:text="${item.type}">LOST</span>
+        </div>
+
+        <div class="item-info">
+            <p><i class="fas fa-tag"></i> <strong>Category:</strong> <span th:text="${item.category}">Category</span></p>
+            <p><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> <span th:text="${item.location}">Location</span></p>
+            <p><i class="fas fa-calendar"></i> <strong>Date:</strong> <span th:text="${#temporals.format(item.date, 'dd MMM yyyy')}">Date</span></p>
+            <p><i class="fas fa-user"></i> <strong>Posted By:</strong> <span th:text="${item.postedBy.fullName}">User</span></p>
+            <p><i class="fas fa-envelope"></i> <strong>Email:</strong> <span th:text="${item.postedBy.email}">email@diu.edu.bd</span></p>
+            <p><i class="fas fa-id-card"></i> <strong>Student ID:</strong> <span th:text="${item.postedBy.studentId}">ID</span></p>
+            <p><i class="fas fa-clock"></i> <strong>Posted On:</strong> <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy HH:mm')}">Date</span></p>
+            <p><i class="fas fa-check-circle"></i> <strong>Status:</strong>
+                <span th:class="'status-' + ${item.status.name().toLowerCase()}" th:text="${item.status}">PENDING</span>
+            </p>
+        </div>
+
+        <div class="item-description">
+            <h3>Description</h3>
+            <p th:text="${item.description}">Description goes here...</p>
+        </div>
+
+        <div class="item-images" th:if="${not #lists.isEmpty(item.imageUrls)}">
+            <h3>Images</h3>
+            <div class="image-gallery">
+                <img th:each="img : ${item.imageUrls}" th:src="@{${img}}" alt="Item Image" class="gallery-image">
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="/admin/items" class="btn btn-secondary">Back to Items</a>
+            <a th:if="${item.status == 'PENDING'}" th:href="@{/admin/items/approve/{id}(id=${item.id})}" class="btn-approve">Approve Item</a>
+            <a th:if="${item.status == 'PENDING'}" th:href="@{/admin/items/reject/{id}(id=${item.id})}" class="btn-reject">Reject Item</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .item-detail-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid var(--bg-light);
+    }
+
+    .item-header h2 {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .status-lost {
+        background: #f44336;
+    }
+
+    .status-found {
+        background: #4caf50;
+    }
+
+    .status-pending {
+        background: #ff9800;
+    }
+
+    .status-approved {
+        background: #4caf50;
+    }
+
+    .status-rejected {
+        background: #f44336;
+    }
+
+    .item-info {
+        margin-bottom: 25px;
+    }
+
+    .item-info p {
+        margin-bottom: 12px;
+        color: var(--text-light);
+    }
+
+    .item-info p i {
+        width: 25px;
+        color: var(--diu-green);
+        margin-right: 10px;
+    }
+
+    .item-info p strong {
+        color: var(--text-dark);
+        margin-right: 10px;
+    }
+
+    .item-description {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: var(--bg-light);
+        border-radius: 15px;
+    }
+
+    .item-description h3 {
+        margin-bottom: 10px;
+        color: var(--text-dark);
+    }
+
+    .item-images {
+        margin-bottom: 25px;
+    }
+
+    .image-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 10px;
+    }
+
+    .gallery-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 10px;
+        border: 2px solid #e0e0e0;
+        cursor: pointer;
+    }
+
+    .gallery-image:hover {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+    }
+
+    .btn-approve {
+        background: #4caf50;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .btn-reject {
+        background: #f44336;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+
+    .btn-secondary {
+        background: #666;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+    }
+</style>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

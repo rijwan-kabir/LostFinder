@@ -18,8 +18,10 @@
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
-            <a href="/dashboard" class="nav-link">Dashboard</a>
-            <a href="/admin/dashboard" class="nav-link">Admin</a>
+            <!-- This should go to admin dashboard, not user dashboard -->
+            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a href="/admin/items" class="nav-link">Items</a>
+            <a href="/admin/users" class="nav-link">Users</a>
             <form th:action="@{/logout}" method="post" class="nav-form">
                 <button type="submit" class="nav-link">
                     <i class="fas fa-sign-out-alt"></i> Logout
@@ -50,8 +52,9 @@
         <div class="stat-card">
             <i class="fas fa-boxes"></i>
             <div>
-                <h3>0</h3>
+                <h3 th:text="${totalItems}">0</h3>  <!-- Changed: dynamic -->
                 <p>Total Items</p>
+                <small th:text="${pendingItemsCount} + ' pending approval'"></small>  <!-- Added: pending count -->
             </div>
         </div>
         <div class="stat-card">

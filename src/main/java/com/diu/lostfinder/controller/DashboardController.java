@@ -40,34 +40,7 @@ public class DashboardController {
         }
 
         model.addAttribute("user", user);
-        return "my-items"; //Implement later
+        return "my-items";
     }
 
-    @GetMapping("/post-lost")
-    public String postLost(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("user", user);
-        return "post-lost"; // Implement later
-    }
-
-    @GetMapping("/post-found")
-    public String postFound(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = auth.getName();
-
-        User user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return "redirect:/login";
-        }
-
-        model.addAttribute("user", user);
-        return "post-found"; //Implement later
-    }
 }

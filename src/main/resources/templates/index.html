@@ -22,14 +22,11 @@
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
-            <a href="/items" class="nav-link">Browse Items</a>
 
-            <!-- Show these links only if user is logged in -->
+            <!-- Conditional Dashboard link based on role -->
             <div th:if="${isLoggedIn}">
-                <a href="/dashboard" class="nav-link">Dashboard</a>
-                <a href="/post-lost" class="nav-link">Post Lost</a>
-                <a href="/post-found" class="nav-link">Post Found</a>
-                <a href="/my-items" class="nav-link">My Items</a>
+                <a th:if="${isAdmin}" href="/admin/dashboard" class="nav-link">Dashboard</a>
+                <a th:unless="${isAdmin}" href="/dashboard" class="nav-link">Dashboard</a>
                 <form th:action="@{/logout}" method="post" class="nav-form">
                     <button type="submit" class="nav-link">
                         <i class="fas fa-sign-out-alt"></i> Logout
@@ -65,12 +62,13 @@
 
         <!-- Different buttons based on login status -->
         <div th:if="${isLoggedIn}">
-            <a href="/post-lost" class="btn btn-primary">Report Lost Item</a>
-            <a href="/post-found" class="btn btn-secondary">Report Found Item</a>
+            <a th:if="${isAdmin}" href="/admin/dashboard" class="btn btn-primary">Go to Admin Dashboard</a>
+            <a th:unless="${isAdmin}" href="/dashboard" class="btn btn-primary">Go to Dashboard</a>
+            <a href="/post-lost" class="btn btn-secondary">Report Lost Item</a>
         </div>
         <div th:unless="${isLoggedIn}">
-            <a href="/login" class="btn btn-primary">Login to Post</a>
-            <a href="/register" class="btn btn-secondary">Create Account</a>
+            <a href="/login" class="btn btn-primary">Login</a>
+            <a href="/register" class="btn btn-secondary">Register</a>
         </div>
     </div>
 

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Lost Item - DIU LostFinder</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/post-lost" class="nav-link">Post Lost</a>
+            <a href="/post-found" class="nav-link">Post Found</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="auth-container">
+    <h2><i class="fas fa-search-location"></i> Report Lost Item</h2>
+
+    <form th:action="@{/post-item}" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="type" value="LOST">
+
+        <div class="form-group">
+            <label><i class="fas fa-tag"></i> Item Name:</label>
+            <input type="text" name="title" placeholder="e.g., Black Wallet, iPhone 13" required>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-list"></i> Category:</label>
+            <select name="category" required>
+                <option value="">Select Category</option>
+                <option value="ELECTRONICS">Electronics</option>
+                <option value="ACCESSORIES">Accessories</option>
+                <option value="DOCUMENTS">Documents</option>
+                <option value="CLOTHING">Clothing</option>
+                <option value="BOOKS">Books</option>
+                <option value="OTHER">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-map-marker-alt"></i> Location:</label>
+            <select name="location" required>
+                <option value="">Select Location</option>
+                <option value="Permanent Campus">Permanent Campus (Savar)</option>
+                <option value="Dhanmondi Campus">Dhanmondi Campus</option>
+                <option value="Uttara Campus">Uttara Campus</option>
+                <option value="Other">Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-calendar"></i> Date Lost:</label>
+            <input type="date" name="date" required>
+        </div>
+
+        <div class="form-group">
+            <label><i class="fas fa-align-left"></i> Description:</label>
+            <textarea name="description" rows="4" placeholder="Provide details about the item..." required></textarea>
+        </div>
+
+        <!-- Image Upload Section -->
+        <div class="form-group">
+            <label><i class="fas fa-camera"></i> Upload Photos (Max 5):</label>
+            <input type="file" name="images" multiple accept="image/*" id="imageInput">
+            <small><i class="fas fa-info-circle"></i> You can upload up to 5 images</small>
+
+            <!-- Image Preview Container -->
+            <div id="imagePreview" class="image-preview"></div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">
+            <i class="fas fa-paper-plane"></i> Submit for Approval
+        </button>
+    </form>
+</div>
+
+<style>
+    .image-preview {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .preview-item {
+        position: relative;
+        width: 100px;
+        height: 100px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .preview-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .preview-item .remove-btn {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background: rgba(0,0,0,0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        font-size: 12px;
+    }
+
+    .preview-item .main-badge {
+        position: absolute;
+        bottom: 2px;
+        left: 2px;
+        background: var(--diu-green);
+        color: white;
+        padding: 2px 5px;
+        font-size: 10px;
+        border-radius: 3px;
+    }
+
+    textarea {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-family: inherit;
+    }
+</style>
+
+<script>
+    // Image preview functionality
+    document.getElementById('imageInput').addEventListener('change', function(e) {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = '';
+
+        const files = Array.from(e.target.files);
+
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${event.target.result}" alt="Preview">
+                    <button class="remove-btn" data-index="${index}">×</button>
+                    <div class="main-badge">
+                        <input type="radio" name="mainImage" value="${index}" ${index === 0 ? 'checked' : ''}>
+                        Main
+                    </div>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // Remove image functionality
+    document.getElementById('imagePreview').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-btn')) {
+            const index = e.target.dataset.index;
+            const input = document.getElementById('imageInput');
+            const dt = new DataTransfer();
+            const files = Array.from(input.files);
+            files.splice(index, 1);
+            files.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+            // Trigger change event to refresh preview
+            input.dispatchEvent(new Event('change'));
+        }
+    });
+</script>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

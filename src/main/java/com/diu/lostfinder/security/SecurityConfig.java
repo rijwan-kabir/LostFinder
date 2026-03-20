@@ -44,6 +44,9 @@ public class SecurityConfig {
                                 "/forgot-password", "/reset-password").permitAll()
                         .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
+                        // Add this to permit access to uploaded images
+                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/**.css", "/style.css").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
