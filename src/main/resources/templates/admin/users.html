@@ -18,8 +18,9 @@
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
-            <a href="/dashboard" class="nav-link">Dashboard</a>
-            <a href="/admin/dashboard" class="nav-link">Admin</a>
+            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a href="/admin/items" class="nav-link">Items</a>
+            <a href="/admin/users" class="nav-link">Users</a>
 
             <form th:action="@{/logout}" method="post" class="nav-form">
                 <button type="submit" class="nav-link">
@@ -31,6 +32,10 @@
 </nav>
 
 <div class="admin-container">
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
     <div class="admin-header">
         <h1><i class="fas fa-users"></i> Manage Users</h1>
         <div class="search-box">
@@ -67,31 +72,39 @@
                               th:text="${user.role}">USER</span>
                 </td>
                 <td class="actions">
-                    <a th:href="@{/admin/users/view/{id}(id=${user.id})}" class="btn-view">
+                    <a th:href="@{/admin/users/view/{id}(id=${user.id})}" class="btn-view" title="View">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-edit">
+                    <a th:href="@{/admin/users/edit/{id}(id=${user.id})}" class="btn-edit" title="Edit">
                         <i class="fas fa-edit"></i>
                     </a>
                     <form th:action="@{/admin/users/delete/{id}(id=${user.id})}" method="post"
                           style="display: inline;">
-                        <button type="submit" class="btn-delete" onclick="return confirm('Delete this user?')">
+                        <button type="submit" class="btn-delete" title="Delete"
+                                onclick="return confirm('Are you sure you want to delete ' + (user.fullName) + '?')">
                             <i class="fas fa-trash"></i>
                         </button>
                     </form>
-                    <form th:if="${user.role == 'USER'}" th:action="@{/admin/users/make-admin/{id}(id=${user.id})}"
+                    <form th:if="${user.role == 'USER'}"
+                          th:action="@{/admin/users/make-admin/{id}(id=${user.id})}"
                           method="post" style="display: inline;">
-                        <button type="submit" class="btn-make-admin" title="Make Admin">
+                        <button type="submit" class="btn-make-admin" title="Make Admin"
+                                onclick="return confirm('Make ' + (user.fullName) + ' an admin?')">
                             <i class="fas fa-user-shield"></i>
                         </button>
                     </form>
-                    <form th:if="${user.role == 'ADMIN'}" th:action="@{/admin/users/remove-admin/{id}(id=${user.id})}"
+                    <form th:if="${user.role == 'ADMIN'}"
+                          th:action="@{/admin/users/remove-admin/{id}(id=${user.id})}"
                           method="post" style="display: inline;">
-                        <button type="submit" class="btn-remove-admin" title="Remove Admin">
+                        <button type="submit" class="btn-remove-admin" title="Remove Admin"
+                                onclick="return confirm('Remove admin role from ' + (user.fullName) + '?')">
                             <i class="fas fa-user-minus"></i>
                         </button>
                     </form>
                 </td>
+            </tr>
+            <tr th:if="${users.isEmpty()}">
+                <td colspan="7" style="text-align: center;">No users found</td>
             </tr>
             </tbody>
         </table>

@@ -1,6 +1,6 @@
 package com.diu.lostfinder.security;
 
-import com.diu.lostfinder.service.impl.CustomUserDetailsService;
+import com.diu.lostfinder.serviceimpl.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

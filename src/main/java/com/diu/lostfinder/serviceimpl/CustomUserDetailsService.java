@@ -1,4 +1,4 @@
-package com.diu.lostfinder.service.impl;
+package com.diu.lostfinder.serviceimpl;
 
 import com.diu.lostfinder.entity.User;
 import com.diu.lostfinder.repository.UserRepository;

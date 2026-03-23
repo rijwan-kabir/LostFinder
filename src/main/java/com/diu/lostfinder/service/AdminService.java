@@ -1,71 +1,30 @@
 package com.diu.lostfinder.service;
 
 import com.diu.lostfinder.entity.User;
-import com.diu.lostfinder.entity.User.Role;  // ← Add this import
-import com.diu.lostfinder.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.diu.lostfinder.entity.User.Role;
 
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class AdminService {
+public interface AdminService {
 
-    @Autowired
-    private UserRepository userRepository;
+    List<User> getAllUsers();
 
-    @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    Optional<User> getUserById(Long id);
 
-    // Get all users
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
+    User updateUserRole(Long userId, Role role);
 
-    // Get user by ID
-    public Optional<User> getUserById(Long id) {
-        return userRepository.findById(id);
-    }
+    void deleteUser(Long userId);
 
-    // Update user role (make admin or remove admin)
-    @Transactional
-    public User updateUserRole(Long userId, Role role) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-        user.setRole(role);
-        return userRepository.save(user);
-    }
+    List<User> searchUsers(String keyword);
 
-    // Delete user
-    @Transactional
-    public void deleteUser(Long userId) {
-        userRepository.deleteById(userId);
-    }
+    long getUserCount();
 
-    // Search users
-    public List<User> searchUsers(String keyword) {
-        return userRepository.findByFullNameContainingOrEmailContaining(keyword, keyword);
-    }
+    long getAdminCount();
 
-    // Get user count
-    public long getUserCount() {
-        return userRepository.count();
-    }
+    User createAdminUser(User adminUser);
 
-    // Get admin count
-    public long getAdminCount() {
-        return userRepository.countByRole(Role.ADMIN);
-    }
+    User updateUser(User user);
 
-    // Create admin (for first-time setup)
-    @Transactional
-    public User createAdminUser(User adminUser) {
-        adminUser.setPassword(passwordEncoder.encode(adminUser.getPassword()));
-        adminUser.setRole(Role.ADMIN);
-        adminUser.setCreatedAt(java.time.LocalDateTime.now());
-        return userRepository.save(adminUser);
-    }
+    void deleteUserRelatedData(Long userId);
 }

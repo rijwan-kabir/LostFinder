@@ -22,6 +22,7 @@
         </a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
+            <a href="/items" class="nav-link">Browse Items</a>
 
             <!-- Conditional Dashboard link based on role -->
             <div th:if="${isLoggedIn}">
@@ -67,7 +68,7 @@
             <a href="/post-lost" class="btn btn-secondary">Report Lost Item</a>
         </div>
         <div th:unless="${isLoggedIn}">
-            <a href="/login" class="btn btn-primary">Login</a>
+            <a href="/login" class="btn btn-primary">Login to Post</a>
             <a href="/register" class="btn btn-secondary">Register</a>
         </div>
     </div>
