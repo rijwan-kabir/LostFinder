@@ -1,26 +1,50 @@
 package com.diu.lostfinder.repository;
 
 import com.diu.lostfinder.entity.PasswordResetToken;
-import com.diu.lostfinder.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Long> {
-    Optional<PasswordResetToken> findByToken(String token);
-    Optional<PasswordResetToken> findByUser(User user);
+@Repository
+public class PasswordResetTokenRepository {
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM PasswordResetToken t WHERE t.user = :user")
-    void deleteByUser(@Param("user") User user);
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM PasswordResetToken t WHERE t.user.id = :userId")
-    void deleteByUserId(@Param("userId") Long userId);
+    public int save(PasswordResetToken token) {
+        String sql = "INSERT INTO password_reset_tokens (token, user_id, expiry_date, used) VALUES (?, ?, ?, ?)";
+        return jdbcTemplate.update(sql,
+                token.getToken(),
+                token.getUser().getId(),
+                token.getExpiryDate(),
+                token.isUsed() ? 1 : 0
+        );
+    }
+
+    public Optional<PasswordResetToken> findByToken(String token) {
+        String sql = "SELECT * FROM password_reset_tokens WHERE token = ?";
+        try {
+            PasswordResetToken resetToken = jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(PasswordResetToken.class), token);
+            return Optional.ofNullable(resetToken);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public int deleteByUserId(Long userId) {
+        String sql = "DELETE FROM password_reset_tokens WHERE user_id = ?";
+        return jdbcTemplate.update(sql, userId);
+    }
+
+    public int deleteByUser(Long userId) {
+        return deleteByUserId(userId);
+    }
+
+    public int markAsUsed(Long id) {
+        String sql = "UPDATE password_reset_tokens SET used = 1 WHERE id = ?";
+        return jdbcTemplate.update(sql, id);
+    }
 }

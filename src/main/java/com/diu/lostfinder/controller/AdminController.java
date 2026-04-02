@@ -1,9 +1,9 @@
 package com.diu.lostfinder.controller;
 
+import com.diu.lostfinder.entity.Item;
 import com.diu.lostfinder.entity.User;
 import com.diu.lostfinder.service.AdminService;
 import com.diu.lostfinder.service.ItemService;
-import com.diu.lostfinder.entity.Item;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -28,13 +28,8 @@ public class AdminController {
     public String adminDashboard(Model model) {
         model.addAttribute("userCount", adminService.getUserCount());
         model.addAttribute("adminCount", adminService.getAdminCount());
-
-        List<Item> approvedItems = itemService.getApprovedItems();
-        model.addAttribute("totalItems", approvedItems.size());
-
-        List<Item> pendingItems = itemService.getPendingItems();
-        model.addAttribute("pendingItemsCount", pendingItems.size());
-
+        model.addAttribute("totalItems", itemService.getApprovedItems().size());
+        model.addAttribute("pendingItemsCount", itemService.getPendingItems().size());
         model.addAttribute("users", adminService.getAllUsers());
         return "admin/dashboard";
     }
@@ -57,13 +52,13 @@ public class AdminController {
             User user = adminService.getUserById(id)
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
-            if (user.getRole() == User.Role.ADMIN) {
+            if ("ADMIN".equals(user.getRole())) {
                 redirectAttributes.addFlashAttribute("error",
                         user.getFullName() + " is already an admin!");
                 return "redirect:/admin/users";
             }
 
-            adminService.updateUserRole(id, User.Role.ADMIN);
+            adminService.updateUserRole(id, "ADMIN");
 
             redirectAttributes.addFlashAttribute("success",
                     "✅ " + user.getFullName() + " is now an ADMIN!");
@@ -82,19 +77,19 @@ public class AdminController {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             long adminCount = adminService.getAdminCount();
-            if (adminCount == 1 && user.getRole() == User.Role.ADMIN) {
+            if (adminCount == 1 && "ADMIN".equals(user.getRole())) {
                 redirectAttributes.addFlashAttribute("error",
                         "❌ Cannot remove the last admin! At least one admin must exist.");
                 return "redirect:/admin/users";
             }
 
-            if (user.getRole() != User.Role.ADMIN) {
+            if (!"ADMIN".equals(user.getRole())) {
                 redirectAttributes.addFlashAttribute("error",
                         user.getFullName() + " is not an admin!");
                 return "redirect:/admin/users";
             }
 
-            adminService.updateUserRole(id, User.Role.USER);
+            adminService.updateUserRole(id, "USER");
 
             redirectAttributes.addFlashAttribute("success",
                     "✅ Admin role removed from " + user.getFullName());
@@ -197,13 +192,12 @@ public class AdminController {
             User user = adminService.getUserById(id).orElse(null);
 
             long adminCount = adminService.getAdminCount();
-            if (adminCount == 1 && user != null && user.getRole() == User.Role.ADMIN) {
+            if (adminCount == 1 && user != null && "ADMIN".equals(user.getRole())) {
                 redirectAttributes.addFlashAttribute("error",
                         "❌ Cannot delete the last admin!");
                 return "redirect:/admin/users";
             }
 
-            adminService.deleteUserRelatedData(id);
             adminService.deleteUser(id);
 
             redirectAttributes.addFlashAttribute("success",

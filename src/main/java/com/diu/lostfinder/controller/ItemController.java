@@ -50,30 +50,18 @@ public class ItemController {
     }
 
     @PostMapping("/post-item")
-    public String postItem(
-            @RequestParam("type") String type,
-            @RequestParam("title") String title,
-            @RequestParam("category") String category,
-            @RequestParam("location") String location,
-            @RequestParam("date") String dateString,
-            @RequestParam("description") String description,
-            @RequestParam(value = "images", required = false) List<MultipartFile> images,
-            @RequestParam(value = "mainImage", required = false) Integer mainImageIndex,
-            Authentication authentication,
-            RedirectAttributes redirectAttributes) {
-
-        System.out.println("========== POST ITEM RECEIVED ==========");
-        System.out.println("Type: " + type);
-        System.out.println("Title: " + title);
-        System.out.println("Category: " + category);
-        System.out.println("Location: " + location);
-        System.out.println("Date: " + dateString);
-        System.out.println("Description: " + description);
-        System.out.println("Images: " + (images != null ? images.size() : 0));
-        System.out.println("========================================");
+    public String postItem(@RequestParam("type") String type,
+                           @RequestParam("title") String title,
+                           @RequestParam("category") String category,
+                           @RequestParam("location") String location,
+                           @RequestParam("date") String dateString,
+                           @RequestParam("description") String description,
+                           @RequestParam(value = "images", required = false) List<MultipartFile> images,
+                           @RequestParam(value = "mainImage", required = false) Integer mainImageIndex,
+                           Authentication authentication,
+                           RedirectAttributes redirectAttributes) {
 
         try {
-            // Get current user
             String email = authentication.getName();
             User user = userRepository.findByEmail(email).orElse(null);
 
@@ -82,18 +70,16 @@ public class ItemController {
                 return "redirect:/login";
             }
 
-            // Create new Item
             Item item = new Item();
             item.setTitle(title);
             item.setDescription(description);
             item.setCategory(category);
             item.setLocation(location);
-            item.setType(Item.ItemType.valueOf(type));
-            item.setStatus(Item.ItemStatus.PENDING);
+            item.setType(type);
+            item.setStatus("PENDING");
             item.setPostedBy(user);
             item.setCreatedAt(LocalDateTime.now());
 
-            // Handle date - parse from string
             LocalDateTime dateTime;
             if (dateString != null && !dateString.isEmpty()) {
                 LocalDate localDate = LocalDate.parse(dateString);
@@ -102,11 +88,8 @@ public class ItemController {
                 dateTime = LocalDateTime.now();
             }
             item.setDate(dateTime);
-            System.out.println("Parsed date: " + dateTime);
 
-            // Upload images
             if (images != null && !images.isEmpty()) {
-                // Filter out empty files
                 List<MultipartFile> validImages = images.stream()
                         .filter(f -> f != null && !f.isEmpty())
                         .toList();
@@ -120,20 +103,15 @@ public class ItemController {
                     } else if (!imageUrls.isEmpty()) {
                         item.setMainImageUrl(imageUrls.get(0));
                     }
-                    System.out.println("Uploaded " + imageUrls.size() + " images");
                 }
             }
 
-            // Save item
-            Item savedItem = itemService.saveItem(item);
-            System.out.println("Item saved with ID: " + savedItem.getId());
+            itemService.saveItem(item);
 
             redirectAttributes.addFlashAttribute("success", "Item posted successfully! Waiting for admin approval.");
             return "redirect:/my-items";
 
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-            e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "Failed to post item: " + e.getMessage());
             if ("LOST".equals(type)) {
                 return "redirect:/post-lost";

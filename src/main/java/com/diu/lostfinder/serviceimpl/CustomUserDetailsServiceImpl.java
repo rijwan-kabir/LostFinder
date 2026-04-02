@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 
 @Service
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private UserRepository userRepository;
@@ -22,15 +22,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        // Debug logs
-        System.out.println("=== CustomUserDetailsService ===");
-        System.out.println("Email: " + user.getEmail());
-        System.out.println("Role from DB: " + user.getRole());
-        System.out.println("Creating authority: ROLE_" + user.getRole());
-        System.out.println("================================");
-
-        // Create authority with ROLE_ prefix
-        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole().toString());
+        SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
 
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())

@@ -1,10 +1,9 @@
 package com.diu.lostfinder.security;
 
-import com.diu.lostfinder.serviceimpl.CustomUserDetailsService;
+import com.diu.lostfinder.serviceimpl.CustomUserDetailsServiceImpl;  // ← Correct import
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -16,7 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 public class SecurityConfig {
 
     @Autowired
-    private CustomUserDetailsService userDetailsService;
+    private CustomUserDetailsServiceImpl userDetailsService;
 
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
@@ -44,15 +43,12 @@ public class SecurityConfig {
                                 "/forgot-password", "/reset-password").permitAll()
                         .requestMatchers("/dashboard").authenticated()
                         .requestMatchers("/admin/**").hasRole("ADMIN")
-
-                        // Add this to permit access to uploaded images
-                        .requestMatchers("/uploads/**", "/css/**", "/js/**", "/images/**", "/**.css", "/style.css").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .loginProcessingUrl("/login")
-                        .successHandler(authenticationSuccessHandler())  // ← This is key!
+                        .successHandler(authenticationSuccessHandler())
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )
@@ -70,10 +66,5 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable());
 
         return http.build();
-    }
-
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
     }
 }

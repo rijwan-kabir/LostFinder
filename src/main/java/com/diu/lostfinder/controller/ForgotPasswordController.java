@@ -7,7 +7,6 @@ import com.diu.lostfinder.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -28,15 +27,12 @@ public class ForgotPasswordController {
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
-    // Show forgot password form
     @GetMapping("/forgot-password")
     public String showForgotPasswordForm() {
         return "forgot-password";
     }
 
-    // Process forgot password form - WITH TRANSACTION
     @PostMapping("/forgot-password")
-    @Transactional  // ← THIS FIXES THE ERROR
     public String processForgotPassword(@RequestParam("email") String email,
                                         Model model) {
 
@@ -49,24 +45,19 @@ public class ForgotPasswordController {
 
         User user = userOpt.get();
 
-        // Delete any existing tokens for this user (NOW WORKS WITH @Transactional)
-        tokenRepository.deleteByUser(user);
+        tokenRepository.deleteByUserId(user.getId());
 
-        // Create new token
         String token = UUID.randomUUID().toString();
         PasswordResetToken resetToken = new PasswordResetToken(token, user);
         tokenRepository.save(resetToken);
 
-        // Generate reset link
         String resetLink = "http://localhost:8081/reset-password?token=" + token;
 
-        // For testing - show link directly
-        model.addAttribute("success", "Password reset link generated! Click here: " + resetLink);
+        model.addAttribute("success", "Password reset link: " + resetLink);
 
         return "forgot-password";
     }
 
-    // Show reset password form
     @GetMapping("/reset-password")
     public String showResetPasswordForm(@RequestParam("token") String token, Model model) {
 
@@ -80,8 +71,8 @@ public class ForgotPasswordController {
         PasswordResetToken resetToken = tokenOpt.get();
 
         if (resetToken.isExpired()) {
-            model.addAttribute("error", "Password reset link has expired! Please request a new one.");
-            tokenRepository.delete(resetToken);
+            model.addAttribute("error", "Password reset link has expired!");
+            tokenRepository.deleteByUserId(resetToken.getUser().getId());
             return "forgot-password";
         }
 
@@ -94,9 +85,7 @@ public class ForgotPasswordController {
         return "reset-password";
     }
 
-    // Process reset password - WITH TRANSACTION
     @PostMapping("/reset-password")
-    @Transactional  // ← ADD THIS TOO
     public String processResetPassword(@RequestParam("token") String token,
                                        @RequestParam("password") String password,
                                        @RequestParam("confirmPassword") String confirmPassword,
@@ -114,7 +103,7 @@ public class ForgotPasswordController {
 
         if (resetToken.isExpired()) {
             model.addAttribute("error", "Password reset link has expired!");
-            tokenRepository.delete(resetToken);
+            tokenRepository.deleteByUserId(resetToken.getUser().getId());
             return "forgot-password";
         }
 
@@ -123,7 +112,6 @@ public class ForgotPasswordController {
             return "forgot-password";
         }
 
-        // Validate passwords
         if (!password.equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match!");
             model.addAttribute("token", token);
@@ -136,14 +124,18 @@ public class ForgotPasswordController {
             return "reset-password";
         }
 
-        // Update user password
-        User user = resetToken.getUser();
-        user.setPassword(passwordEncoder.encode(password));
-        userRepository.save(user);
+        // FIX: Get user from resetToken, NOT from separate findById
+        User user = resetToken.getUser();  // ← This is the fix
 
-        // Mark token as used
-        resetToken.setUsed(true);
-        tokenRepository.save(resetToken);
+        if (user == null) {
+            model.addAttribute("error", "User not found!");
+            return "forgot-password";
+        }
+
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.update(user);
+
+        tokenRepository.markAsUsed(resetToken.getId());
 
         redirectAttributes.addFlashAttribute("success", "Password reset successfully! Please login with your new password.");
         return "redirect:/login";

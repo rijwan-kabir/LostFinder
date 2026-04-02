@@ -24,7 +24,6 @@ public class FileUploadServiceImpl implements FileUploadService {
     public List<String> uploadImages(List<MultipartFile> files) throws IOException {
         List<String> uploadedUrls = new ArrayList<>();
 
-        // Create directory if not exists
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
@@ -32,16 +31,13 @@ public class FileUploadServiceImpl implements FileUploadService {
 
         for (MultipartFile file : files) {
             if (file != null && !file.isEmpty()) {
-                // Generate unique filename
                 String originalFilename = file.getOriginalFilename();
                 String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
                 String filename = UUID.randomUUID().toString() + extension;
 
-                // Save file
                 Path filePath = uploadPath.resolve(filename);
                 Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-                // Return URL for web access
                 String fileUrl = "/uploads/" + filename;
                 uploadedUrls.add(fileUrl);
             }

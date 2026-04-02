@@ -6,9 +6,7 @@ import com.diu.lostfinder.repository.ItemRepository;
 import com.diu.lostfinder.service.ItemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,7 +18,8 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item saveItem(Item item) {
-        return itemRepository.save(item);
+        itemRepository.save(item);
+        return item;
     }
 
     @Override
@@ -35,50 +34,31 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemsByUser(User user) {
-        return itemRepository.findByPostedBy(user);
+        return itemRepository.findByUserId(user.getId());
     }
 
     @Override
     public List<Item> getPendingItems() {
-        return itemRepository.findByStatus(Item.ItemStatus.PENDING);
+        return itemRepository.findByStatus("PENDING");
     }
 
     @Override
     public List<Item> getApprovedItems() {
-        return itemRepository.findByStatus(Item.ItemStatus.APPROVED);
+        return itemRepository.findByStatus("APPROVED");
     }
 
     @Override
-    public List<Item> getItemsByType(Item.ItemType type) {
+    public List<Item> getItemsByType(String type) {
         return itemRepository.findByType(type);
     }
 
     @Override
-    public Item updateItem(Item item) {
-        return itemRepository.save(item);
-    }
-
-    @Override
-    public void deleteItem(Long id) {
-        itemRepository.deleteById(id);
-    }
-
-    @Override
-    @Transactional
     public void approveItem(Long id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
-        item.setStatus(Item.ItemStatus.APPROVED);
-        item.setApprovedAt(LocalDateTime.now());
-        itemRepository.save(item);
+        itemRepository.approveItem(id, null);
     }
 
     @Override
-    @Transactional
     public void rejectItem(Long id) {
-        Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
-        item.setStatus(Item.ItemStatus.REJECTED);
-        itemRepository.save(item);
+        itemRepository.rejectItem(id);
     }
 }

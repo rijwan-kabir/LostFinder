@@ -2,7 +2,6 @@ package com.diu.lostfinder.service;
 
 import com.diu.lostfinder.entity.Item;
 import com.diu.lostfinder.entity.User;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -20,11 +19,7 @@ public interface ItemService {
 
     List<Item> getApprovedItems();
 
-    List<Item> getItemsByType(Item.ItemType type);
-
-    Item updateItem(Item item);
-
-    void deleteItem(Long id);
+    List<Item> getItemsByType(String type);
 
     void approveItem(Long id);
 

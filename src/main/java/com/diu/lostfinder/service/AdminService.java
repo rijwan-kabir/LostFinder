@@ -1,8 +1,6 @@
 package com.diu.lostfinder.service;
 
 import com.diu.lostfinder.entity.User;
-import com.diu.lostfinder.entity.User.Role;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -12,7 +10,7 @@ public interface AdminService {
 
     Optional<User> getUserById(Long id);
 
-    User updateUserRole(Long userId, Role role);
+    void updateUserRole(Long userId, String role);
 
     void deleteUser(Long userId);
 
@@ -22,9 +20,7 @@ public interface AdminService {
 
     long getAdminCount();
 
-    User createAdminUser(User adminUser);
-
-    User updateUser(User user);
+    void updateUser(User user);
 
     void deleteUserRelatedData(Long userId);
 }

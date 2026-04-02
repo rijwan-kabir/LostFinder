@@ -29,7 +29,6 @@ public class HomeController {
             model.addAttribute("message", "You have been logged out successfully!");
         }
 
-        // Check if user is logged in
         if (authentication != null && authentication.isAuthenticated()) {
             String email = authentication.getName();
             User user = userRepository.findByEmail(email).orElse(null);
@@ -49,9 +48,14 @@ public class HomeController {
 
     @GetMapping("/register")
     public String showRegisterForm(Model model, Authentication authentication) {
-        // If already logged in, redirect to dashboard
         if (authentication != null && authentication.isAuthenticated()) {
-            return "redirect:/dashboard";
+            boolean isAdmin = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+            if (isAdmin) {
+                return "redirect:/admin/dashboard";
+            } else {
+                return "redirect:/dashboard";
+            }
         }
         model.addAttribute("user", new User());
         return "register";
@@ -77,7 +81,6 @@ public class HomeController {
 
     @GetMapping("/login")
     public String showLoginForm(Authentication authentication) {
-        // If already logged in, redirect to dashboard
         if (authentication != null && authentication.isAuthenticated()) {
             boolean isAdmin = authentication.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));

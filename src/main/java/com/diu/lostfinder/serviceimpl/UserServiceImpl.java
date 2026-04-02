@@ -6,7 +6,10 @@ import com.diu.lostfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -20,9 +23,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User registerUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(User.Role.USER);
+        user.setRole("USER");
         user.setCreatedAt(LocalDateTime.now());
-        return userRepository.save(user);
+        userRepository.save(user);
+        return user;
     }
 
     @Override
@@ -31,12 +35,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email).orElse(null);
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     @Override
-    public User findById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
