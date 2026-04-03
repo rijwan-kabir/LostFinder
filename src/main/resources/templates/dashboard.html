@@ -23,6 +23,7 @@
             <a href="/post-lost" class="nav-link">Post Lost</a>
             <a href="/post-found" class="nav-link">Post Found</a>
             <a href="/my-items" class="nav-link">My Items</a>
+            <a href="/my-claims" class="nav-link">My Claims</a>
 
             <form th:action="@{/logout}" method="post" class="nav-form">
                 <button type="submit" class="nav-link">
@@ -47,47 +48,40 @@
                             user.fullName.split(' ')[0] + ' ' +
                             user.fullName.split(' ')[user.fullName.split(' ').length - 1] :
                             user.fullName}">
-                Rijwan Kabir
+                    User
             </span>!
             </h1>
             <p>
                 <i class="fas fa-calendar-alt"></i>
-                Member since <span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">March 2026</span>
+                Member since <span th:text="${#temporals.format(user.createdAt, 'MMMM yyyy')}">Month Year</span>
             </p>
         </div>
 
         <!-- Profile Badge -->
         <div class="profile-badge">
-
             <div class="badge-info">
-
-
                 <div class="name-row">
                     <i class="fas fa-user-circle user-icon"></i>
-                    <h3 th:text="${user.fullName}">Rijwan Kabir</h3>
+                    <h3 th:text="${user.fullName}">User Name</h3>
                 </div>
-
-                <!-- Student ID -->
                 <p>
                     <i class="fas fa-id-card"></i>
-                    <span th:text="${user.studentId}">241-15-84000</span>
+                    <span th:text="${user.studentId != null ? user.studentId : 'Not Provided'}">Student ID</span>
                 </p>
-
             </div>
-
         </div>
     </div>
 
-    <!-- Stats Cards -->
+    <!-- Stats Cards - Fully Dynamic -->
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-icon">
                 <i class="fas fa-box-open"></i>
             </div>
             <div class="stat-details">
-                <h3>5</h3>
+                <h3 th:text="${totalItems != null ? totalItems : 0}">0</h3>
                 <p>Total Items</p>
-                <small>+2 this month</small>
+                <small th:text="'+' + ${totalItemsThisMonth != null ? totalItemsThisMonth : 0} + ' this month'">+0 this month</small>
             </div>
         </div>
         <div class="stat-card">
@@ -95,9 +89,9 @@
                 <i class="fas fa-search"></i>
             </div>
             <div class="stat-details">
-                <h3>3</h3>
+                <h3 th:text="${lostItems != null ? lostItems : 0}">0</h3>
                 <p>Lost Items</p>
-                <small>2 pending</small>
+                <small th:text="${pendingLostItems != null ? pendingLostItems : 0} + ' pending'">0 pending</small>
             </div>
         </div>
         <div class="stat-card">
@@ -105,9 +99,9 @@
                 <i class="fas fa-hand-holding-heart"></i>
             </div>
             <div class="stat-details">
-                <h3>2</h3>
+                <h3 th:text="${foundItems != null ? foundItems : 0}">0</h3>
                 <p>Found Items</p>
-                <small>1 returned</small>
+                <small th:text="${returnedFoundItems != null ? returnedFoundItems : 0} + ' returned'">0 returned</small>
             </div>
         </div>
         <div class="stat-card">
@@ -115,9 +109,9 @@
                 <i class="fas fa-check-circle"></i>
             </div>
             <div class="stat-details">
-                <h3>3</h3>
+                <h3 th:text="${claims != null ? claims : 0}">0</h3>
                 <p>Claims</p>
-                <small>1 approved</small>
+                <small th:text="${approvedClaims != null ? approvedClaims : 0} + ' approved'">0 approved</small>
             </div>
         </div>
     </div>
@@ -152,7 +146,7 @@
             <p>View and manage all your posted items</p>
             <span class="action-btn">View All →</span>
         </a>
-        <a href="/claims" class="action-card">
+        <a href="/my-claims" class="action-card">
             <div class="action-icon">
                 <i class="fas fa-clipboard-list"></i>
             </div>
@@ -162,65 +156,92 @@
         </a>
     </div>
 
-    <!-- Recent Items -->
+    <!-- Recent Items - DYNAMIC Lost & Found -->
     <div class="recent-items">
         <div class="recent-header">
             <h3>
                 <i class="fas fa-history"></i>
-                Recent Activity
+                Recent Lost & Found Items
             </h3>
-            <a href="/my-items" class="view-all-link">
+            <a href="/all-items" class="view-all-link">
                 View All <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
-        <!-- Items List (dynamic content) -->
-        <div class="items-list">
-            <!-- Lost Item Example -->
-            <div class="item-row">
-                <div class="item-status status-lost">
-                    <i class="fas fa-times"></i>
+        <!-- Dynamic Items List - Lost Items -->
+        <div style="margin-bottom: 30px;">
+            <div style="background: #dc3545; color: white; padding: 10px 15px; border-radius: 8px 8px 0 0;">
+                <h4 style="margin: 0;"><i class="fas fa-search"></i> Recently Lost Items</h4>
+            </div>
+            <div style="border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; padding: 15px;">
+                <div th:if="${recentLostItems != null and !recentLostItems.isEmpty()}">
+                    <div th:each="item : ${recentLostItems}" class="item-row">
+                        <div class="item-status status-lost">
+                            <i class="fas fa-times"></i>
+                        </div>
+                        <div class="item-details">
+                            <h4 th:text="${item.title}">Item Title</h4>
+                            <p>
+                                <i class="fas fa-map-marker-alt"></i> <span th:text="${item.location}">Location</span>
+                                <i class="fas fa-clock" style="margin-left: 15px;"></i>
+                                <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</span>
+                            </p>
+                            <a th:href="@{/item/{id}(id=${item.id})}" style="color: #dc3545; font-size: 12px;">View Details →</a>
+                        </div>
+                        <div class="item-meta">
+                            <div class="date" th:text="${#temporals.format(item.createdAt, 'MMM dd, yyyy')}">Date</div>
+                            <span class="badge badge-approved" th:text="${item.status}">APPROVED</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="item-details">
-                    <h4>Black Wallet</h4>
-                    <p>
-                        <i class="fas fa-map-marker-alt"></i> Permanent Campus
-                        <i class="fas fa-clock" style="margin-left: 15px;"></i> 2 days ago
-                    </p>
-                </div>
-                <div class="item-meta">
-                    <div class="date">Mar 17, 2026</div>
-                    <span class="badge badge-pending">Pending</span>
+                <div th:if="${recentLostItems == null or recentLostItems.isEmpty()}" class="empty-recent">
+                    <p><i class="fas fa-info-circle"></i> No lost items found.</p>
+                    <a href="/post-lost" class="btn-link">Post Lost Item →</a>
                 </div>
             </div>
+        </div>
 
-            <!-- Found Item Example -->
-            <div class="item-row">
-                <div class="item-status status-found">
-                    <i class="fas fa-check"></i>
+        <!-- Dynamic Items List - Found Items -->
+        <div>
+            <div style="background: #28a745; color: white; padding: 10px 15px; border-radius: 8px 8px 0 0;">
+                <h4 style="margin: 0;"><i class="fas fa-hand-holding-heart"></i> Recently Found Items</h4>
+            </div>
+            <div style="border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px; padding: 15px;">
+                <div th:if="${recentFoundItems != null and !recentFoundItems.isEmpty()}">
+                    <div th:each="item : ${recentFoundItems}" class="item-row">
+                        <div class="item-status status-found">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="item-details">
+                            <h4 th:text="${item.title}">Item Title</h4>
+                            <p>
+                                <i class="fas fa-map-marker-alt"></i> <span th:text="${item.location}">Location</span>
+                                <i class="fas fa-clock" style="margin-left: 15px;"></i>
+                                <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</span>
+                            </p>
+                            <a th:href="@{/item/{id}(id=${item.id})}" style="color: #28a745; font-size: 12px;">View Details →</a>
+                        </div>
+                        <div class="item-meta">
+                            <div class="date" th:text="${#temporals.format(item.createdAt, 'MMM dd, yyyy')}">Date</div>
+                            <span class="badge badge-approved" th:text="${item.status}">APPROVED</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="item-details">
-                    <h4>Calculator (Casio fx-991EX)</h4>
-                    <p>
-                        <i class="fas fa-map-marker-alt"></i> Library
-                        <i class="fas fa-clock" style="margin-left: 15px;"></i> 5 days ago
-                    </p>
-                </div>
-                <div class="item-meta">
-                    <div class="date">Mar 14, 2026</div>
-                    <span class="badge badge-approved">Returned</span>
+                <div th:if="${recentFoundItems == null or recentFoundItems.isEmpty()}" class="empty-recent">
+                    <p><i class="fas fa-info-circle"></i> No found items found.</p>
+                    <a href="/post-found" class="btn-link">Post Found Item →</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Profile Information -->
+    <!-- Profile Information - Fully Dynamic -->
     <div class="profile-card">
         <div class="profile-header">
-            <div class="profile-avatar" th:text="${user.fullName.substring(0,1)}">R</div>
+            <div class="profile-avatar" th:text="${user.fullName != null ? user.fullName.substring(0,1) : 'U'}">U</div>
             <div class="profile-info">
-                <h3 th:text="${user.fullName}">Rijwan Kabir</h3>
-                <p><i class="fas fa-envelope"></i> <span th:text="${user.email}">rijwan@diu.edu.bd</span></p>
+                <h3 th:text="${user.fullName != null ? user.fullName : 'User'}">User Name</h3>
+                <p><i class="fas fa-envelope"></i> <span th:text="${user.email != null ? user.email : 'Not Provided'}">user@example.com</span></p>
             </div>
         </div>
         <div class="profile-grid">
@@ -228,43 +249,33 @@
                 <i class="fas fa-id-card"></i>
                 <div>
                     <p>Student ID</p>
-                    <h4 th:text="${user.studentId}">221-15-1234</h4>
+                    <h4 th:text="${user.studentId != null ? user.studentId : 'Not Provided'}">ID</h4>
                 </div>
             </div>
             <div class="profile-item">
                 <i class="fas fa-building"></i>
                 <div>
                     <p>Department</p>
-                    <h4 th:text="${user.department}">Computer Science & Engineering</h4>
+                    <h4 th:text="${user.department != null ? user.department : 'Not Provided'}">Department</h4>
                 </div>
             </div>
             <div class="profile-item">
                 <i class="fas fa-phone"></i>
                 <div>
                     <p>Phone</p>
-                    <h4 th:text="${user.phone}">017XXXXXXXX</h4>
+                    <h4 th:text="${user.phone != null ? user.phone : 'Not Provided'}">Phone</h4>
                 </div>
             </div>
             <div class="profile-item">
                 <i class="fas fa-calendar-alt"></i>
                 <div>
                     <p>Member Since</p>
-                    <h4 th:text="${#temporals.format(user.createdAt, 'dd MMM yyyy')}">19 Mar 2026</h4>
+                    <h4 th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd MMM yyyy') : 'N/A'}">Date</h4>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Empty State (if no items) -->
-    <!--
-    <div class="empty-state">
-        <i class="fas fa-box-open"></i>
-        <h3>No items yet</h3>
-        <p>Start by posting a lost or found item</p>
-        <a href="/post-lost" class="btn btn-primary">Post Lost Item</a>
-        <a href="/post-found" class="btn btn-secondary">Post Found Item</a>
-    </div>
-    -->
 </div>
 
 <!-- Footer -->
@@ -274,5 +285,51 @@
         <p>Daffodil International University</p>
     </div>
 </footer>
+
+<style>
+    .empty-recent {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-light);
+    }
+
+    .badge-rejected {
+        background: #f44336;
+        color: white;
+    }
+
+    .badge-pending {
+        background: #ff9800;
+        color: white;
+    }
+
+    .badge-approved {
+        background: #4caf50;
+        color: white;
+    }
+
+    .btn-link {
+        color: #007bff;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .item-row {
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .item-row:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+</style>
 </body>
 </html>

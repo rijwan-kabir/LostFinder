@@ -2,8 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Items</title>
+    <title>Manage Items - Admin</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,19 +11,15 @@
 
 <nav class="navbar">
     <div class="container">
-        <a href="/" class="logo">
-            DIU <span>LostFinder</span>
-        </a>
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
-            <!-- This should go to admin dashboard, not user dashboard -->
             <a href="/admin/dashboard" class="nav-link">Dashboard</a>
-            <a href="/admin/items" class="nav-link">Items</a>
-            <a href="/admin/users" class="nav-link">Users</a>
-            <form th:action="@{/logout}" method="post" class="nav-form">
-                <button type="submit" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+            <a href="/admin/items" class="nav-link active">Items</a>
+            <a href="/admin/claims" class="nav-link">Claims</a>
+            <a href="/admin/reports" class="nav-link">Reports</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link">Logout</button>
             </form>
         </div>
     </div>
@@ -33,11 +28,14 @@
 <div class="admin-container">
     <h1><i class="fas fa-boxes"></i> Manage Items</h1>
 
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
     <!-- Pending Items -->
     <div class="section">
         <h2><i class="fas fa-clock"></i> Pending Items (<span th:text="${pendingItems.size()}">0</span>)</h2>
-        <div class="items-table">
-            <table>
+        <div class="table-responsive">
+            <table class="data-table">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -52,28 +50,23 @@
                 <tbody>
                 <tr th:each="item : ${pendingItems}">
                     <td th:text="${item.id}">1</td>
-                    <td th:text="${item.title}">Item Title</td>
-                    <td>
-                            <span th:class="'badge ' + (${item.type} == 'LOST' ? 'badge-lost' : 'badge-found')"
-                                  th:text="${item.type}">LOST</span>
-                    </td>
+                    <td th:text="${item.title}">Title</td>
+                    <td><span th:class="'badge ' + (${item.type == 'LOST'} ? 'badge-lost' : 'badge-found')"
+                              th:text="${item.type}">LOST</span></td>
                     <td th:text="${item.location}">Location</td>
-                    <td th:text="${item.postedBy.fullName}">User</td>
-                    <td th:text="${#temporals.format(item.date, 'dd MMM yyyy')}">Date</td>
+                    <td th:text="${item.postedBy != null ? item.postedBy.fullName : 'Unknown'}">User</td>
+                    <td th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</td>
                     <td class="actions">
-                        <a th:href="@{/admin/items/view/{id}(id=${item.id})}" class="btn-view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                        <a th:href="@{/admin/items/approve/{id}(id=${item.id})}" class="btn-approve">
-                            <i class="fas fa-check-circle"></i> Approve
-                        </a>
-                        <a th:href="@{/admin/items/reject/{id}(id=${item.id})}" class="btn-reject">
-                            <i class="fas fa-times-circle"></i> Reject
-                        </a>
+                        <a th:href="@{/admin/items/approve/{id}(id=${item.id})}" class="btn-approve"
+                           onclick="return confirm('Approve this item?')"><i class="fas fa-check"></i> Approve</a>
+                        <a th:href="@{/admin/items/reject/{id}(id=${item.id})}" class="btn-reject"
+                           onclick="return confirm('Reject this item?')"><i class="fas fa-times"></i> Reject</a>
+                        <a th:href="@{/admin/items/delete/{id}(id=${item.id})}" class="btn-delete"
+                           onclick="return confirm('Delete this item?')"><i class="fas fa-trash"></i></a>
                     </td>
                 </tr>
                 <tr th:if="${pendingItems.isEmpty()}">
-                    <td colspan="7" style="text-align: center;">No pending items</td>
+                    <td colspan="7" style="text-align:center;">No pending items</td>
                 </tr>
                 </tbody>
             </table>
@@ -83,8 +76,8 @@
     <!-- Approved Items -->
     <div class="section">
         <h2><i class="fas fa-check-circle"></i> Approved Items (<span th:text="${approvedItems.size()}">0</span>)</h2>
-        <div class="items-table">
-            <table>
+        <div class="table-responsive">
+            <table class="data-table">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -92,27 +85,21 @@
                     <th>Type</th>
                     <th>Location</th>
                     <th>Posted By</th>
+                    <th>Date</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:each="item : ${approvedItems}">
                     <td th:text="${item.id}">1</td>
-                    <td th:text="${item.title}">Item Title</td>
-                    <td>
-                            <span th:class="'badge ' + (${item.type} == 'LOST' ? 'badge-lost' : 'badge-found')"
-                                  th:text="${item.type}">LOST</span>
-                    </td>
+                    <td th:text="${item.title}">Title</td>
+                    <td><span th:class="'badge ' + (${item.type == 'LOST'} ? 'badge-lost' : 'badge-found')"
+                              th:text="${item.type}">LOST</span></td>
                     <td th:text="${item.location}">Location</td>
-                    <td th:text="${item.postedBy.fullName}">User</td>
-                    <td class="actions">
-                        <a th:href="@{/admin/items/view/{id}(id=${item.id})}" class="btn-view">
-                            <i class="fas fa-eye"></i>
-                        </a>
-                    </td>
-                </tr>
-                <tr th:if="${approvedItems.isEmpty()}">
-                    <td colspan="6" style="text-align: center;">No approved items</td>
+                    <td th:text="${item.postedBy != null ? item.postedBy.fullName : 'Unknown'}">User</td>
+                    <td th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</td>
+                    <td><a th:href="@{/admin/items/delete/{id}(id=${item.id})}" class="btn-delete"
+                           onclick="return confirm('Delete this item?')"><i class="fas fa-trash"></i> Delete</a></td>
                 </tr>
                 </tbody>
             </table>
@@ -126,84 +113,138 @@
         border-radius: 15px;
         padding: 20px;
         margin-bottom: 30px;
-        box-shadow: var(--shadow);
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
-
     .section h2 {
         margin-bottom: 20px;
         font-size: 1.3rem;
-        color: var(--text-dark);
     }
-
-    .items-table {
+    .table-responsive {
         overflow-x: auto;
     }
-
     table {
         width: 100%;
         border-collapse: collapse;
     }
-
     th, td {
         padding: 12px;
         text-align: left;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid #eee;
     }
-
     th {
-        background: var(--bg-light);
-        font-weight: 600;
+        background: #f5f5f5;
     }
-
     .badge-lost {
         background: #f44336;
         color: white;
         padding: 4px 10px;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 12px;
     }
-
     .badge-found {
         background: #4caf50;
         color: white;
         padding: 4px 10px;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 12px;
+    }
+    .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #f44336;
     }
 
-    .btn-approve {
-        background: #4caf50;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 0.8rem;
-        margin-right: 5px;
+    /* ===== ACTION BUTTONS - SAME SIZE FOR ALL ===== */
+    .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .btn-reject {
-        background: #f44336;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-decoration: none;
-        font-size: 0.8rem;
+    .actions a,
+    .actions button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 6px !important;
+        padding: 6px 12px !important;
+        border-radius: 6px !important;
+        text-decoration: none !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        cursor: pointer !important;
+        border: none !important;
+        width: 75px !important;
+        min-width: 75px !important;
+        max-width: 75px !important;
+        height: 32px !important;
+        white-space: nowrap !important;
+        box-sizing: border-box !important;
     }
 
-    .btn-view {
-        background: #2196f3;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        text-decoration: none;
-        margin-right: 5px;
+    /* Hover Effect */
+    .actions a:hover,
+    .actions button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important;
+        filter: brightness(1.05) !important;
+    }
+
+    /* Approve button - Green */
+    .actions .btn-approve {
+        background: linear-gradient(135deg, #4caf50, #45a049) !important;
+        color: white !important;
+    }
+
+    .actions .btn-approve:hover {
+        background: linear-gradient(135deg, #45a049, #3d8b40) !important;
+    }
+
+    /* Reject button - Orange */
+    .actions .btn-reject {
+        background: linear-gradient(135deg, #ff9800, #f57c00) !important;
+        color: white !important;
+    }
+
+    .actions .btn-reject:hover {
+        background: linear-gradient(135deg, #f57c00, #e65100) !important;
+    }
+
+    /* Delete button - Red (same as others) */
+    .actions .btn-delete {
+        background: linear-gradient(135deg, #f44336, #d32f2f) !important;
+        color: white !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+
+    .actions .btn-delete:hover {
+        background: linear-gradient(135deg, #d32f2f, #c62828) !important;
+    }
+
+    /* Icons inside buttons */
+    .actions i {
+        font-size: 11px !important;
+        color: white !important;
+    }
+
+    /* Table row hover effect */
+    tr:hover td {
+        background-color: #f9f9f9;
     }
 </style>
-
-<footer class="footer">
-    <div class="container">
-        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
-    </div>
-</footer>
 </body>
 </html>

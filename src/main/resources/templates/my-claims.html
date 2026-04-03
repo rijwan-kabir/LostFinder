@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Claims - DIU LostFinder</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+            <a href="/post-lost" class="nav-link">Post Lost</a>
+            <a href="/post-found" class="nav-link">Post Found</a>
+            <a href="/my-items" class="nav-link">My Items</a>
+            <a href="/my-claims" class="nav-link">My Claims</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="dashboard-container">
+    <div class="welcome-banner">
+        <div class="welcome-text">
+            <h1><i class="fas fa-clipboard-list"></i> My Claims</h1>
+            <p>Track status of your item claims</p>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- Claims Table -->
+    <div class="recent-items" th:if="${not #lists.isEmpty(claims)}">
+        <div class="items-list">
+            <div th:each="claim : ${claims}" class="item-row">
+                <div class="item-status" th:class="${claim.status == 'PENDING'} ? 'status-pending' :
+                                                      (${claim.status == 'APPROVED'} ? 'status-approved' : 'status-rejected')">
+                    <i th:class="${claim.status == 'PENDING'} ? 'fas fa-clock' :
+                                   (${claim.status == 'APPROVED'} ? 'fas fa-check' : 'fas fa-times')"></i>
+                </div>
+                <div class="item-details">
+                    <h4 th:text="${claim.item.title}">Item Title</h4>
+                    <p>
+                        <i class="fas fa-map-marker-alt"></i> <span th:text="${claim.item.location}">Location</span>
+                        <i class="fas fa-calendar" style="margin-left: 15px;"></i>
+                        <span th:text="${#temporals.format(claim.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </p>
+                    <p class="claim-description">
+                        <strong>Reason:</strong> <span th:text="${claim.description}">Claim description</span>
+                    </p>
+                    <p th:if="${claim.adminNotes}" class="admin-notes">
+                        <strong>Admin Note:</strong> <span th:text="${claim.adminNotes}">Admin notes</span>
+                    </p>
+                </div>
+                <div class="item-meta">
+                    <div class="date" th:text="${#temporals.format(claim.createdAt, 'MMM dd, yyyy')}">Date</div>
+                    <span th:class="'badge ' + (${claim.status == 'PENDING'} ? 'badge-pending' :
+                                                   (${claim.status == 'APPROVED'} ? 'badge-approved' : 'badge-rejected'))"
+                          th:text="${claim.status}">PENDING</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div th:if="${#lists.isEmpty(claims)}" class="empty-state">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>No claims yet</h3>
+        <p>You haven't claimed any items yet.</p>
+        <a href="/items" class="btn btn-primary">Browse Items to Claim</a>
+    </div>
+</div>
+
+<style>
+    .status-pending {
+        background: #fff3e0;
+        color: #ff9800;
+    }
+    .status-approved {
+        background: #e8f5e9;
+        color: #4caf50;
+    }
+    .status-rejected {
+        background: #ffebee;
+        color: #f44336;
+    }
+    .badge-pending {
+        background: #ff9800;
+        color: white;
+    }
+    .badge-approved {
+        background: #4caf50;
+        color: white;
+    }
+    .badge-rejected {
+        background: #f44336;
+        color: white;
+    }
+    .claim-description {
+        margin-top: 8px;
+        font-size: 0.85rem;
+        color: var(--text-light);
+        background: var(--bg-light);
+        padding: 8px;
+        border-radius: 8px;
+    }
+    .admin-notes {
+        margin-top: 5px;
+        font-size: 0.85rem;
+        color: #2196f3;
+    }
+    .alert {
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .alert-success {
+        background: #d4edda;
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+    .alert-error {
+        background: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #f44336;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: var(--shadow);
+    }
+    .empty-state i {
+        font-size: 5rem;
+        color: var(--diu-green);
+        opacity: 0.3;
+        margin-bottom: 20px;
+    }
+</style>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,6 +1,8 @@
 package com.diu.lostfinder.controller;
 
+import com.diu.lostfinder.entity.Item;
 import com.diu.lostfinder.entity.User;
+import com.diu.lostfinder.repository.ItemRepository;
 import com.diu.lostfinder.repository.UserRepository;
 import com.diu.lostfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 @Controller
 public class HomeController {
 
@@ -20,6 +24,9 @@ public class HomeController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ItemRepository itemRepository; // ← নতুন
 
     @GetMapping("/")
     public String home(@RequestParam(value = "logout", required = false) String logout,
@@ -42,6 +49,11 @@ public class HomeController {
         } else {
             model.addAttribute("isLoggedIn", false);
         }
+
+        List<Item> recentItems = itemRepository.findByStatus("APPROVED").stream()
+                .limit(3)
+                .collect(java.util.stream.Collectors.toList());
+        model.addAttribute("recentItems", recentItems);
 
         return "index";
     }
@@ -68,11 +80,9 @@ public class HomeController {
                 model.addAttribute("error", "Email already registered!");
                 return "register";
             }
-
             userService.registerUser(user);
             model.addAttribute("success", "Registration successful! Please login.");
             return "login";
-
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed: " + e.getMessage());
             return "register";
@@ -99,7 +109,6 @@ public class HomeController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "❌ Not authenticated! Please login first.";
         }
-
         return "✅ Authenticated!\n" +
                 "Username: " + authentication.getName() + "\n" +
                 "Authorities: " + authentication.getAuthorities() + "\n" +

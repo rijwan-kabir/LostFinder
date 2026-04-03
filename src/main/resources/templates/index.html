@@ -21,7 +21,7 @@
             DIU <span>LostFinder</span>
         </a>
         <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
+            <a href="/" class="nav-link active">Home</a>
             <a href="/items" class="nav-link">Browse Items</a>
 
             <!-- Conditional Dashboard link based on role -->
@@ -77,42 +77,27 @@
     <div class="recent-items-section">
         <h2><i class="fas fa-clock"></i> Recent Lost & Found Items</h2>
 
-        <div class="items-grid">
-            <!-- Lost Item Card -->
-            <div class="item-card">
-                <div class="item-badge lost">LOST</div>
+        <!-- Dynamic items from DB -->
+        <div class="items-grid" th:if="${not #lists.isEmpty(recentItems)}">
+            <div th:each="item : ${recentItems}" class="item-card">
+                <div th:class="'item-badge ' + (${item.type == 'LOST'} ? 'lost' : 'found')"
+                     th:text="${item.type}">LOST</div>
                 <div class="item-content">
-                    <h3>Black Wallet</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Permanent Campus</p>
-                    <p><i class="fas fa-calendar"></i> 2 days ago</p>
-                    <p class="description">Black leather wallet with ID card</p>
-                    <button class="btn-view" onclick="location.href='/login'">View Details</button>
-                </div>
-            </div>
+                    <h3 th:text="${item.title}">Item Title</h3>
+                    <p><i class="fas fa-map-marker-alt"></i>
+                        <span th:text="${item.location}">Location</span></p>
+                    <p><i class="fas fa-calendar"></i>
+                        <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</span></p>
+                    <p class="description" th:text="${item.description}">Description</p>
 
-            <!-- Found Item Card -->
-            <div class="item-card">
-                <div class="item-badge found">FOUND</div>
-                <div class="item-content">
-                    <h3>Calculator (Casio fx-991EX)</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Library</p>
-                    <p><i class="fas fa-calendar"></i> 5 days ago</p>
-                    <p class="description">Scientific calculator in good condition</p>
-                    <button class="btn-view" onclick="location.href='/login'">Login to Claim</button>
+                    <a th:href="@{/items/{id}(id=${item.id})}"
+                       class="btn-view">View Details</a>
                 </div>
             </div>
+        </div>
 
-            <!-- Lost Item Card 2 -->
-            <div class="item-card">
-                <div class="item-badge lost">LOST</div>
-                <div class="item-content">
-                    <h3>Student ID Card</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Cafeteria</p>
-                    <p><i class="fas fa-calendar"></i> 1 day ago</p>
-                    <p class="description">ID: 241-15-840</p>
-                    <button class="btn-view" onclick="location.href='/login'">View Details</button>
-                </div>
-            </div>
+        <div th:if="${#lists.isEmpty(recentItems)}" style="text-align:center; padding:40px; color:#888;">
+            <p><i class="fas fa-inbox"></i> No approved items yet.</p>
         </div>
 
         <div class="view-more">

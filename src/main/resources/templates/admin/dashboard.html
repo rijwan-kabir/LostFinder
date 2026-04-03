@@ -2,7 +2,6 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - DIU LostFinder</title>
     <link rel="stylesheet" th:href="@{/css/main.css}">
     <link rel="stylesheet" th:href="@{/css/admin.css}">
@@ -10,22 +9,17 @@
 </head>
 <body>
 
-<!-- Navigation section -->
 <nav class="navbar">
     <div class="container">
-        <a href="/" class="logo">
-            DIU <span>LostFinder</span>
-        </a>
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
         <div class="nav-links">
             <a href="/" class="nav-link">Home</a>
-            <!-- This should go to admin dashboard, not user dashboard -->
-            <a href="/admin/dashboard" class="nav-link">Dashboard</a>
+            <a href="/admin/dashboard" class="nav-link active">Dashboard</a>
             <a href="/admin/items" class="nav-link">Items</a>
-            <a href="/admin/users" class="nav-link">Users</a>
-            <form th:action="@{/logout}" method="post" class="nav-form">
-                <button type="submit" class="nav-link">
-                    <i class="fas fa-sign-out-alt"></i> Logout
-                </button>
+            <a href="/admin/claims" class="nav-link">Claims</a>
+            <a href="/admin/reports" class="nav-link">Reports</a>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="nav-link">Logout</button>
             </form>
         </div>
     </div>
@@ -52,33 +46,25 @@
         <div class="stat-card">
             <i class="fas fa-boxes"></i>
             <div>
-                <h3 th:text="${totalItems}">0</h3>  <!-- Changed: dynamic -->
+                <h3 th:text="${totalItems}">0</h3>
                 <p>Total Items</p>
-                <small th:text="${pendingItemsCount} + ' pending approval'"></small>  <!-- Added: pending count -->
+                <small th:text="${pendingItemsCount} + ' pending'"></small>
             </div>
         </div>
         <div class="stat-card">
             <i class="fas fa-clipboard-list"></i>
             <div>
-                <h3>0</h3>
+                <h3 th:text="${pendingClaimsCount}">0</h3>
                 <p>Pending Claims</p>
             </div>
         </div>
     </div>
 
     <div class="admin-actions">
-        <a href="/admin/users" class="action-btn">
-            <i class="fas fa-users"></i> Manage Users
-        </a>
-        <a href="/admin/items" class="action-btn">
-            <i class="fas fa-boxes"></i> Manage Items
-        </a>
-        <a href="/admin/claims" class="action-btn">
-            <i class="fas fa-clipboard-list"></i> Manage Claims
-        </a>
-        <a href="/admin/reports" class="action-btn">
-            <i class="fas fa-chart-line"></i> View Reports
-        </a>
+        <a href="/admin/users" class="action-btn"><i class="fas fa-users"></i> Manage Users</a>
+        <a href="/admin/items" class="action-btn"><i class="fas fa-boxes"></i> Manage Items</a>
+        <a href="/admin/claims" class="action-btn"><i class="fas fa-clipboard-list"></i> Manage Claims</a>
+        <a href="/admin/reports" class="action-btn"><i class="fas fa-chart-line"></i> View Reports</a>
     </div>
 </div>
 

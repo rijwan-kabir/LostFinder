@@ -1,7 +1,21 @@
 /* auth.css - Login and Register pages */
 
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body > .auth-container {
+    max-width: 500px;
+    width: 90%;
+    margin: 40px auto;
+    flex: none;
+}
+
 .auth-container {
     max-width: 500px;
+    width: 90%;
     margin: 40px auto;
     background: var(--white);
     padding: 40px;

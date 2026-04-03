@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class ItemController {
@@ -47,6 +48,29 @@ public class ItemController {
         model.addAttribute("item", new Item());
         model.addAttribute("type", "FOUND");
         return "post-found";
+    }
+
+    @GetMapping("/item/{id}")
+    public String itemDetail(@PathVariable Long id, Model model, Authentication authentication) {
+        Optional<Item> optionalItem = itemService.getItemById(id);
+
+        if (optionalItem.isEmpty()) {
+            return "redirect:/items";
+        }
+
+        Item item = optionalItem.get();
+        model.addAttribute("item", item);
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            String email = authentication.getName();
+            User user = userRepository.findByEmail(email).orElse(null);
+            model.addAttribute("user", user);
+            model.addAttribute("isLoggedIn", true);
+        } else {
+            model.addAttribute("isLoggedIn", false);
+        }
+
+        return "item-detail";
     }
 
     @PostMapping("/post-item")

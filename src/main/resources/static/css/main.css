@@ -27,6 +27,8 @@ body {
     line-height: 1.6;
 }
 
+
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -47,6 +49,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 15px 20px;
+}
+
+.nav-link.active {
+    background: var(--diu-green);
+    color: white;
 }
 
 .logo {
@@ -76,7 +83,7 @@ body {
     text-decoration: none;
     color: var(--text-dark);
     font-weight: 500;
-    padding: 8px 16px;
+    padding: 8px 12px;
     border-radius: 25px;
     transition: all 0.3s ease;
     display: inline-flex;
@@ -96,7 +103,7 @@ body {
 }
 .nav-links {
     display: flex;
-    gap: 25px;
+    gap: 18px;
 }
 
 .nav-links a {
@@ -186,14 +193,14 @@ body {
 .recent-items-section {
     margin: 50px 0;
     background: white;
-    padding: 30px;
+    padding: 40px 30px;
     border-radius: 20px;
     box-shadow: var(--shadow);
 }
 
 .recent-items-section h2 {
     font-size: 1.8rem;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     color: var(--text-dark);
     text-align: center;
 }
@@ -205,9 +212,21 @@ body {
 
 .items-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(3, 1fr);
     gap: 25px;
     margin-bottom: 30px;
+}
+
+/* ১টা item হলে center এ ছোট card */
+.items-grid:has(> .item-card:only-child) {
+    grid-template-columns: minmax(280px, 380px);
+    justify-content: center;
+}
+
+/* ২টা item হলে */
+.items-grid:has(> .item-card:nth-child(2):last-child) {
+    grid-template-columns: repeat(2, minmax(280px, 400px));
+    justify-content: center;
 }
 
 .item-card {
@@ -216,6 +235,8 @@ body {
     overflow: hidden;
     transition: transform 0.3s ease;
     position: relative;
+    display: flex;
+    flex-direction: column;
 }
 
 .item-card:hover {
@@ -244,13 +265,16 @@ body {
 
 .item-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .item-content h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     margin-bottom: 12px;
     color: var(--text-dark);
-    padding-right: 60px;
+    padding-right: 70px;
 }
 
 .item-content p {
@@ -269,18 +293,23 @@ body {
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid #e0e0e0;
+    flex: 1;
 }
 
 .btn-view {
+    display: block;
+    text-align: center;
+    text-decoration: none;
     background: transparent;
     border: 2px solid var(--diu-green);
     color: var(--diu-green);
-    padding: 8px 20px;
+    padding: 10px 20px;
     border-radius: 25px;
     cursor: pointer;
     font-weight: 500;
     margin-top: 15px;
     width: 100%;
+    box-sizing: border-box;
     transition: all 0.3s ease;
 }
 
@@ -291,7 +320,7 @@ body {
 
 .view-more {
     text-align: center;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .btn-link {

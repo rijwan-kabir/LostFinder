@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${item.title} + ' - DIU LostFinder'">Item Details</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="container">
+        <a href="/" class="logo">DIU <span>LostFinder</span></a>
+        <div class="nav-links">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/items" class="nav-link">Browse Items</a>
+            <div th:if="${isLoggedIn}">
+                <a href="/dashboard" class="nav-link">Dashboard</a>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="nav-link">Logout</button>
+                </form>
+            </div>
+            <div th:unless="${isLoggedIn}">
+                <a href="/login" class="nav-link">Login</a>
+                <a href="/register" class="nav-link">Register</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="detail-container">
+    <div class="detail-card">
+        <div class="detail-header">
+            <h1 th:text="${item.title}">Item Title</h1>
+            <span class="status-badge" th:class="${item.type == 'LOST'} ? 'status-lost' : 'status-found'" th:text="${item.type}">LOST</span>
+        </div>
+
+        <div class="detail-content">
+            <div class="detail-image" th:if="${item.mainImageUrl}">
+                <img th:src="@{${item.mainImageUrl}}" alt="Item Image">
+            </div>
+
+            <div class="detail-info">
+                <div class="info-row">
+                    <i class="fas fa-tag"></i>
+                    <strong>Category:</strong>
+                    <span th:text="${item.category}">Category</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <strong>Location:</strong>
+                    <span th:text="${item.location}">Location</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-calendar"></i>
+                    <strong>Date:</strong>
+                    <span th:text="${#temporals.format(item.date, 'dd MMM yyyy')}">Date</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-user"></i>
+                    <strong>Posted by:</strong>
+                    <span th:text="${item.postedBy != null ? item.postedBy.fullName : 'Unknown'}">User</span>
+                </div>
+                <div class="info-row">
+                    <i class="fas fa-clock"></i>
+                    <strong>Posted on:</strong>
+                    <span th:text="${#temporals.format(item.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-description">
+            <h3>Description</h3>
+            <p th:text="${item.description}">Description goes here...</p>
+        </div>
+
+        <div class="detail-actions">
+            <div th:if="${isLoggedIn}">
+                <a th:href="@{/claim/{id}(id=${item.id})}" class="btn-claim"><i class="fas fa-hand-holding-heart"></i> Claim This Item</a>
+            </div>
+            <div th:unless="${isLoggedIn}">
+                <div class="login-prompt">
+                    <p><i class="fas fa-lock"></i> You need to <a href="/login">login</a> to claim this item.</p>
+                </div>
+            </div>
+            <a href="/items" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Browse</a>
+        </div>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="container">
+        <p>&copy; 2026 DIU LostFinder. All rights reserved.</p>
+    </div>
+</footer>
+
+<style>
+    .detail-container {
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .detail-header h1 {
+        font-size: 1.8rem;
+        color: var(--text-dark);
+        margin: 0;
+    }
+
+    .status-badge {
+        padding: 5px 15px;
+        border-radius: 25px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .status-lost {
+        background: #f44336;
+    }
+
+    .status-found {
+        background: #4caf50;
+    }
+
+    .detail-content {
+        display: flex;
+        gap: 30px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+    }
+
+    .detail-image {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .detail-image img {
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: var(--shadow);
+    }
+
+    .detail-info {
+        flex: 1;
+    }
+
+    .info-row {
+        margin: 12px 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .info-row i {
+        width: 25px;
+        color: var(--diu-green);
+    }
+
+    .detail-description {
+        background: #f9f9f9;
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+    }
+
+    .detail-description h3 {
+        margin-bottom: 10px;
+        color: var(--text-dark);
+    }
+
+    .detail-actions {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .btn-claim {
+        background: linear-gradient(135deg, var(--diu-green), var(--diu-blue));
+        color: white;
+        padding: 12px 25px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-claim:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .btn-back {
+        background: #666;
+        color: white;
+        padding: 12px 25px;
+        border-radius: 30px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-back:hover {
+        background: #555;
+    }
+
+    .login-prompt {
+        background: #f0f0f0;
+        padding: 12px 20px;
+        border-radius: 30px;
+    }
+
+    .login-prompt a {
+        color: var(--diu-green);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    @media (max-width: 600px) {
+        .detail-content {
+            flex-direction: column;
+        }
+
+        .detail-header {
+            flex-direction: column;
+            text-align: center;
+            gap: 10px;
+        }
+    }
+</style>
+</body>
+</html>

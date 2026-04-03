@@ -1,6 +1,6 @@
 package com.diu.lostfinder.security;
 
-import com.diu.lostfinder.serviceimpl.CustomUserDetailsServiceImpl;  // ← Correct import
+import com.diu.lostfinder.serviceimpl.CustomUserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,11 +38,24 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth
+                        // Static resources - সব public করতে হবে
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/**.css", "/style.css").permitAll()
+
+                        // ===== IMPORTANT: Uploads folder public করতে হবে =====
+                        .requestMatchers("/uploads/**").permitAll()  // ← এই line যোগ করো
+
+                        // Public pages
                         .requestMatchers("/", "/index", "/register", "/login",
-                                "/forgot-password", "/reset-password").permitAll()
-                        .requestMatchers("/dashboard").authenticated()
+                                "/forgot-password", "/reset-password",
+                                "/items", "/items/**").permitAll()
+
+                        // Dashboard and other pages need authentication
+                        .requestMatchers("/dashboard", "/post-lost", "/post-found",
+                                "/my-items", "/my-claims", "/claim/**").authenticated()
+
+                        // Admin only pages
                         .requestMatchers("/admin/**").hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
