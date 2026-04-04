@@ -43,10 +43,10 @@
     <div class="recent-items" th:if="${not #lists.isEmpty(claims)}">
         <div class="items-list">
             <div th:each="claim : ${claims}" class="item-row">
-                <div class="item-status" th:class="${claim.status == 'PENDING'} ? 'status-pending' :
-                                                      (${claim.status == 'APPROVED'} ? 'status-approved' : 'status-rejected')">
-                    <i th:class="${claim.status == 'PENDING'} ? 'fas fa-clock' :
-                                   (${claim.status == 'APPROVED'} ? 'fas fa-check' : 'fas fa-times')"></i>
+                <div class="item-status" th:class="${claim.status.name() == 'PENDING'} ? 'status-pending' :
+                                                      (${claim.status.name() == 'APPROVED'} ? 'status-approved' : 'status-rejected')">
+                    <i th:class="${claim.status.name() == 'PENDING'} ? 'fas fa-clock' :
+                                   (${claim.status.name() == 'APPROVED'} ? 'fas fa-check' : 'fas fa-times')"></i>
                 </div>
                 <div class="item-details">
                     <h4 th:text="${claim.item.title}">Item Title</h4>
@@ -64,8 +64,8 @@
                 </div>
                 <div class="item-meta">
                     <div class="date" th:text="${#temporals.format(claim.createdAt, 'MMM dd, yyyy')}">Date</div>
-                    <span th:class="'badge ' + (${claim.status == 'PENDING'} ? 'badge-pending' :
-                                                   (${claim.status == 'APPROVED'} ? 'badge-approved' : 'badge-rejected'))"
+                    <span th:class="'badge ' + (${claim.status.name() == 'PENDING'} ? 'badge-pending' :
+                                                   (${claim.status.name() == 'APPROVED'} ? 'badge-approved' : 'badge-rejected'))"
                           th:text="${claim.status}">PENDING</span>
                 </div>
             </div>

@@ -29,7 +29,7 @@
     <div class="item-info-box">
         <h3 th:text="${item.title}">Item Title</h3>
         <p><i class="fas fa-map-marker-alt"></i> <span th:text="${item.location}">Location</span></p>
-        <p><i class="fas fa-calendar"></i> <span th:text="${#temporals.format(item.date, 'dd MMM yyyy')}">Date</span></p>
+        <p><i class="fas fa-calendar"></i> <span th:text="${item.date != null ? #temporals.format(item.date, 'dd MMM yyyy') : 'N/A'}">Date</span></p>
         <p th:text="${item.description}">Description</p>
     </div>
 

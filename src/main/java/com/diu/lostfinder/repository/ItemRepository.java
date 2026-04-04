@@ -342,6 +342,55 @@ public class ItemRepository {
         }, category, status);
     }
 
+    // Find by multiple statuses (APPROVED + RETURNED)
+    public List<Item> findByStatusIn(List<String> statuses) {
+        String placeholders = String.join(",", statuses.stream().map(s -> "?").toArray(String[]::new));
+        String sql = "SELECT i.*, u.id as user_id, u.full_name as posted_by_name, u.email as posted_by_email " +
+                "FROM items i " +
+                "LEFT JOIN users u ON i.user_id = u.id " +
+                "WHERE i.status IN (" + placeholders + ") " +
+                "ORDER BY i.created_at DESC";
+        SqlLogger.log("SELECT", sql, statuses.toArray());
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapItemWithUser(rs), statuses.toArray());
+    }
+
+    // Find by type and multiple statuses
+    public List<Item> findByTypeAndStatusIn(String type, List<String> statuses) {
+        String placeholders = String.join(",", statuses.stream().map(s -> "?").toArray(String[]::new));
+        String sql = "SELECT i.*, u.id as user_id, u.full_name as posted_by_name, u.email as posted_by_email " +
+                "FROM items i " +
+                "LEFT JOIN users u ON i.user_id = u.id " +
+                "WHERE i.type = ? AND i.status IN (" + placeholders + ") " +
+                "ORDER BY i.created_at DESC";
+        Object[] params = new Object[statuses.size() + 1];
+        params[0] = type;
+        for (int i = 0; i < statuses.size(); i++) params[i + 1] = statuses.get(i);
+        SqlLogger.log("SELECT", sql, params);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapItemWithUser(rs), params);
+    }
+
+    // Find by category and multiple statuses
+    public List<Item> findByCategoryAndStatusIn(String category, List<String> statuses) {
+        String placeholders = String.join(",", statuses.stream().map(s -> "?").toArray(String[]::new));
+        String sql = "SELECT i.*, u.id as user_id, u.full_name as posted_by_name, u.email as posted_by_email " +
+                "FROM items i " +
+                "LEFT JOIN users u ON i.user_id = u.id " +
+                "WHERE i.category = ? AND i.status IN (" + placeholders + ") " +
+                "ORDER BY i.created_at DESC";
+        Object[] params = new Object[statuses.size() + 1];
+        params[0] = category;
+        for (int i = 0; i < statuses.size(); i++) params[i + 1] = statuses.get(i);
+        SqlLogger.log("SELECT", sql, params);
+        return jdbcTemplate.query(sql, (rs, rowNum) -> mapItemWithUser(rs), params);
+    }
+
+    // Count RETURNED items
+    public long countReturned() {
+        String sql = "SELECT COUNT(*) FROM items WHERE status = 'RETURNED'";
+        SqlLogger.log("SELECT", sql);
+        return jdbcTemplate.queryForObject(sql, Long.class);
+    }
+
     // Search by keyword (title or description)
     public List<Item> searchByKeyword(String keyword) {
         String sql = "SELECT i.*, u.full_name as posted_by_name, u.email as posted_by_email " +
